@@ -1,0 +1,3263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="neon_noir">
+  <title>Yesplis — Platform Eksplorasi Acara, Pemesanan Tiket &amp; E-Ticket</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@100;200;300;400;500;600;700;800&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+
+      /* Page and surfaces: hierarchy by lightness, darkest at the base */
+      --background: #0a0a12;
+      --surface-container-low: #111118;
+      --surface-container: #141422;
+      --surface-container-high: #1e1e30;
+
+      /* Text */
+      --on-surface: #e8e0f0;
+      --on-surface-variant: #a098b0;
+
+      /* Lines */
+      --outline: #5a5068;
+      --outline-variant: #302840;
+
+      /* Neon accents */
+      --primary: #ff2d78;
+      --on-primary: #1a0010;
+      --primary-container: #b3004e;
+      --on-primary-container: #ffe0ec;
+      --secondary: #00ffcc;
+      --on-secondary: #00261e;
+      --tertiary: #ffe04a;
+      --on-tertiary: #1f1a00;
+      --error: #ff4444;
+      --on-error: #1a0000;
+
+      /* Semantic & QR tokens */
+      --positive: #00ffcc;
+      --warning: #ffe04a;
+      --focus: #ff2d78;
+      --qr-paper: #ffffff;
+      --qr-ink: #0a0a12;
+
+      /* Data series */
+      --data-1: #ff2d78;
+      --data-2: #00ffcc;
+      --data-3: #ffe04a;
+      --data-4: #b388ff;
+      --data-context: #6e6680;
+
+      /* Fonts */
+      --font-headline: 'Sora', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-label: 'Space Mono', monospace;
+
+      /* Shape: machined panels */
+      --rounded: 0.125rem;
+      --rounded-lg: 0.25rem;
+      --rounded-full: 0.75rem;
+
+      /* Style effects */
+      --glow-text: 0 0 8px currentColor;
+      --glow-primary: 0 0 16px color-mix(in srgb, var(--primary) 40%, transparent);
+      --glow-secondary: 0 0 16px color-mix(in srgb, var(--secondary) 35%, transparent);
+      --neon-border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+      --neon-border-lit: 1px solid color-mix(in srgb, var(--primary) 50%, transparent);
+      --neon-border-cyan: 1px solid color-mix(in srgb, var(--secondary) 35%, transparent);
+      --neon-inset: inset 0 0 12px color-mix(in srgb, var(--primary) 10%, transparent);
+      --neon-inset-cyan: inset 0 0 12px color-mix(in srgb, var(--secondary) 10%, transparent);
+      --glow-line: drop-shadow(0 0 4px currentColor);
+      --scanlines: repeating-linear-gradient(
+        to bottom,
+        transparent 0 3px,
+        color-mix(in srgb, var(--on-surface) 3%, transparent) 3px 4px
+      );
+
+      /* Dashboard / Tool type scale */
+      --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.35rem);
+      --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Spacing scale */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+      --space-3xl: 6rem;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+    }
+
+    /* Base reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      background-image: var(--scanlines);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    header { position: static !important; }
+    button, input, select, textarea { font-family: inherit; color: inherit; }
+
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .page-shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--space-lg);
+      display: grid;
+      gap: var(--space-lg);
+    }
+    .page-shell * { min-width: 0; }
+
+    /* Header & Navigation */
+    .masthead {
+      display: grid;
+      gap: var(--space-lg);
+      padding-bottom: var(--space-lg);
+      border-bottom: 1px solid var(--outline-variant);
+    }
+    .masthead-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: var(--space-md);
+    }
+    .brand-block {
+      display: grid;
+      gap: var(--space-xs);
+    }
+    .kicker {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--secondary);
+      text-shadow: var(--glow-text);
+      margin: 0;
+    }
+    .masthead-title {
+      font-family: var(--font-headline);
+      font-size: var(--display-size);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.08;
+      margin: 0;
+      color: var(--on-surface);
+    }
+    .masthead-sub {
+      color: var(--on-surface-variant);
+      margin: 0;
+      max-width: 65ch;
+      font-size: var(--body-size);
+    }
+
+    .nav-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+    .nav-tab {
+      min-height: 44px;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      transition: border-color var(--dur-short) var(--ease-out),
+                  color var(--dur-short) var(--ease-out),
+                  box-shadow var(--dur-short) var(--ease-out),
+                  background-color var(--dur-short) var(--ease-out);
+    }
+    .nav-tab:hover {
+      border-color: var(--primary);
+      color: var(--on-surface);
+    }
+    .nav-tab[aria-selected="true"] {
+      background: var(--surface-container);
+      color: var(--primary);
+      border-color: var(--primary);
+      box-shadow: var(--glow-primary);
+      text-shadow: var(--glow-text);
+    }
+    .nav-count {
+      padding: var(--space-xs) var(--space-sm);
+      background: var(--surface-container-high);
+      border-radius: var(--rounded);
+      color: var(--on-surface);
+      font-weight: 700;
+    }
+    .nav-tab[aria-selected="true"] .nav-count {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      text-shadow: none;
+    }
+
+    /* KPI Strip */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-md);
+    }
+    .neon-panel {
+      background: var(--surface-container);
+      border: var(--neon-border);
+      box-shadow: var(--neon-inset);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+    }
+    .neon-panel.is-cyan {
+      border: var(--neon-border-cyan);
+      box-shadow: var(--neon-inset-cyan);
+    }
+    .neon-panel.is-neutral {
+      border: 1px solid var(--outline-variant);
+      box-shadow: none;
+    }
+    .kpi-card {
+      display: grid;
+      gap: var(--space-xs);
+      padding: var(--space-md) var(--space-lg);
+    }
+    .kpi-label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--on-surface-variant);
+    }
+    .kpi-value {
+      font-family: var(--font-headline);
+      font-size: clamp(1.35rem, 1.1rem + 0.8vw, 1.85rem);
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--primary);
+      text-shadow: var(--glow-text);
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-card.is-cyan .kpi-value {
+      color: var(--secondary);
+    }
+    .kpi-caption {
+      font-size: 0.8125rem;
+      color: var(--on-surface-variant);
+    }
+
+    /* Buttons */
+    .btn-neon {
+      min-height: 44px;
+      padding: var(--space-sm) var(--space-lg);
+      background: var(--surface-container);
+      color: var(--primary);
+      border: var(--neon-border-lit);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      transition: box-shadow var(--dur-short) var(--ease-out),
+                  border-color var(--dur-short) var(--ease-out),
+                  background-color var(--dur-short) var(--ease-out),
+                  color var(--dur-short) var(--ease-out);
+    }
+    .btn-neon:hover:not(:disabled) {
+      border-color: var(--primary);
+      box-shadow: var(--glow-primary);
+      text-shadow: var(--glow-text);
+      background: var(--surface-container-high);
+    }
+    .btn-neon:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .btn-neon.is-cyan {
+      color: var(--secondary);
+      border-color: color-mix(in srgb, var(--secondary) 50%, transparent);
+    }
+    .btn-neon.is-cyan:hover:not(:disabled) {
+      border-color: var(--secondary);
+      box-shadow: var(--glow-secondary);
+    }
+    .btn-neon.is-ghost {
+      color: var(--on-surface-variant);
+      border-color: var(--outline-variant);
+      background: var(--surface-container-low);
+    }
+    .btn-neon.is-ghost:hover:not(:disabled) {
+      color: var(--on-surface);
+      border-color: var(--outline);
+      box-shadow: none;
+      text-shadow: none;
+    }
+    .btn-neon.is-danger {
+      color: var(--error);
+      border-color: color-mix(in srgb, var(--error) 50%, transparent);
+    }
+    .btn-neon.is-danger:hover:not(:disabled) {
+      border-color: var(--error);
+      box-shadow: 0 0 12px color-mix(in srgb, var(--error) 35%, transparent);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--rounded);
+      border: 1px solid var(--outline);
+      font-family: var(--font-label);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--on-surface);
+      background: var(--surface-container-low);
+      white-space: nowrap;
+    }
+    .badge.is-pink {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .badge.is-cyan {
+      border-color: var(--secondary);
+      color: var(--secondary);
+    }
+    .badge.is-yellow {
+      border-color: var(--tertiary);
+      color: var(--tertiary);
+    }
+    .badge.is-filled-pink {
+      background: var(--primary-container);
+      border-color: var(--primary);
+      color: var(--on-primary-container);
+    }
+
+    /* Form Controls */
+    .field-group {
+      display: grid;
+      gap: var(--space-xs);
+    }
+    .field-label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--on-surface-variant);
+    }
+    .field-input, .field-select {
+      min-height: 44px;
+      width: 100%;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-bottom: 2px solid var(--outline);
+      border-radius: var(--rounded);
+      color: var(--on-surface);
+      font-size: var(--body-size);
+      transition: border-color var(--dur-micro) var(--ease-out),
+                  box-shadow var(--dur-micro) var(--ease-out);
+    }
+    .field-select {
+      padding-right: var(--space-xl);
+      cursor: pointer;
+    }
+    .field-input:focus, .field-select:focus {
+      outline: none;
+      border-bottom-color: var(--primary);
+      box-shadow: var(--glow-primary);
+    }
+    .field-error {
+      font-size: 0.8125rem;
+      color: var(--error);
+      min-height: 1.1em;
+    }
+
+    /* Views */
+    .view-panel {
+      display: none;
+      gap: var(--space-lg);
+    }
+    .view-panel.is-active {
+      display: grid;
+      animation: fadeSlide var(--dur-short) var(--ease-out);
+    }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Filter Toolbar */
+    .filter-panel {
+      display: grid;
+      gap: var(--space-md);
+    }
+    .filter-controls-row {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-md);
+      align-items: end;
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+    .filter-chip {
+      min-height: 44px;
+      padding: var(--space-xs) var(--space-md);
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      transition: border-color var(--dur-micro) var(--ease-out),
+                  color var(--dur-micro) var(--ease-out),
+                  background-color var(--dur-micro) var(--ease-out);
+    }
+    .filter-chip:hover {
+      border-color: var(--secondary);
+      color: var(--on-surface);
+    }
+    .filter-chip[aria-pressed="true"] {
+      background: var(--primary-container);
+      border-color: var(--primary);
+      color: var(--on-primary-container);
+    }
+    .filter-meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--outline-variant);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+    }
+
+    /* Catalog Asymmetric Layout */
+    .catalog-workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.85fr) minmax(0, 1.15fr);
+      gap: var(--space-lg);
+      align-items: start;
+    }
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+    .event-card-wrap {
+      container-type: inline-size;
+    }
+    .event-card {
+      display: grid;
+      gap: var(--space-md);
+      height: 100%;
+      background: var(--surface-container);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      cursor: pointer;
+      transition: border-color var(--dur-short) var(--ease-out),
+                  box-shadow var(--dur-short) var(--ease-out),
+                  background-color var(--dur-short) var(--ease-out);
+    }
+    .event-card:hover {
+      border-color: color-mix(in srgb, var(--secondary) 60%, transparent);
+      background: var(--surface-container-high);
+    }
+    .event-card.is-selected {
+      border-color: var(--primary);
+      box-shadow: var(--glow-primary), var(--neon-inset);
+      background: var(--surface-container-high);
+    }
+    .event-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-sm);
+    }
+    .event-title {
+      font-family: var(--font-headline);
+      font-size: var(--subhead-size);
+      font-weight: 700;
+      line-height: 1.25;
+      margin: 0;
+      color: var(--on-surface);
+    }
+    .event-meta {
+      display: grid;
+      gap: var(--space-xs);
+      font-size: 0.875rem;
+      color: var(--on-surface-variant);
+    }
+    .event-meta-row {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+    }
+    .event-meta-icon {
+      flex-shrink: 0;
+      color: var(--secondary);
+      margin-top: 2px;
+    }
+    .event-card-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: var(--space-sm);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--outline-variant);
+      margin-top: auto;
+    }
+    .price-block {
+      display: grid;
+      gap: 2px;
+    }
+    .price-label {
+      font-family: var(--font-label);
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--on-surface-variant);
+    }
+    .price-value {
+      font-family: var(--font-headline);
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--secondary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    @container (max-width: 280px) {
+      .event-card-foot {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    /* Ticket Configurator / Inspector */
+    .inspector-panel {
+      display: grid;
+      gap: var(--space-md);
+      position: sticky;
+      top: var(--space-md);
+    }
+    .section-heading {
+      font-family: var(--font-headline);
+      font-size: var(--headline-size);
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin: 0;
+      color: var(--on-surface);
+    }
+    .tier-list {
+      display: grid;
+      gap: var(--space-sm);
+    }
+    .tier-card {
+      display: grid;
+      gap: var(--space-sm);
+      padding: var(--space-md);
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded);
+      transition: border-color var(--dur-micro) var(--ease-out),
+                  background-color var(--dur-micro) var(--ease-out);
+    }
+    .tier-card.has-qty {
+      border-color: var(--primary);
+      background: var(--surface-container-high);
+    }
+    .tier-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-sm);
+    }
+    .tier-name {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      color: var(--on-surface);
+    }
+    .tier-perk {
+      font-size: 0.8125rem;
+      color: var(--on-surface-variant);
+      margin: 0;
+    }
+    .tier-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .tier-price {
+      font-family: var(--font-label);
+      font-weight: 700;
+      color: var(--secondary);
+      font-variant-numeric: tabular-nums;
+    }
+    .stepper {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .stepper-btn {
+      min-width: 44px;
+      min-height: 44px;
+      background: var(--surface-container);
+      border: 1px solid var(--outline);
+      border-radius: var(--rounded);
+      color: var(--on-surface);
+      font-family: var(--font-label);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color var(--dur-micro) var(--ease-out),
+                  color var(--dur-micro) var(--ease-out);
+    }
+    .stepper-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .stepper-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .stepper-val {
+      min-width: 2.25rem;
+      text-align: center;
+      font-family: var(--font-label);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .summary-box {
+      display: grid;
+      gap: var(--space-sm);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--outline-variant);
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: 0.9375rem;
+    }
+    .summary-total {
+      font-family: var(--font-headline);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-shadow: var(--glow-text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Distribution Chart Strip */
+    .analytics-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: var(--space-md);
+    }
+    .bar-chart-rows {
+      display: grid;
+      gap: var(--space-sm);
+      margin-top: var(--space-sm);
+    }
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(0, 145px) minmax(0, 1fr) auto;
+      gap: var(--space-sm);
+      align-items: center;
+      font-size: 0.875rem;
+    }
+    .bar-track {
+      height: 12px;
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded);
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: color-mix(in srgb, var(--data-1) 30%, transparent);
+      border-right: 2px solid var(--data-1);
+      transition: width var(--dur-short) var(--ease-out);
+    }
+    .bar-fill.is-c2 {
+      background: color-mix(in srgb, var(--data-2) 30%, transparent);
+      border-right-color: var(--data-2);
+    }
+    .bar-fill.is-c3 {
+      background: color-mix(in srgb, var(--data-3) 30%, transparent);
+      border-right-color: var(--data-3);
+    }
+    .bar-fill.is-c4 {
+      background: color-mix(in srgb, var(--data-4) 30%, transparent);
+      border-right-color: var(--data-4);
+    }
+    .bar-fill.is-c5 {
+      background: color-mix(in srgb, var(--data-context) 30%, transparent);
+      border-right-color: var(--data-context);
+    }
+
+    /* Checkout Layout */
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+      align-items: start;
+    }
+    .step-indicator {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-sm);
+    }
+    .step-pill {
+      padding: var(--space-sm) var(--space-md);
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface-variant);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .step-pill.is-active {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--surface-container);
+    }
+    .step-pill.is-done {
+      border-color: var(--secondary);
+      color: var(--secondary);
+    }
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-md);
+    }
+    .payment-options {
+      display: grid;
+      gap: var(--space-sm);
+    }
+    .payment-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md);
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded);
+      cursor: pointer;
+      min-height: 56px;
+    }
+    .payment-option.is-selected {
+      border-color: var(--secondary);
+      box-shadow: var(--neon-inset-cyan);
+      background: var(--surface-container-high);
+    }
+    .payment-option input[type="radio"] {
+      accent-color: var(--secondary);
+      width: 18px;
+      height: 18px;
+    }
+
+    /* E-Ticket & QR View */
+    .tickets-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.35fr);
+      gap: var(--space-lg);
+      align-items: start;
+    }
+    .ticket-list {
+      display: grid;
+      gap: var(--space-sm);
+    }
+    .ticket-item {
+      display: grid;
+      gap: var(--space-xs);
+      padding: var(--space-md);
+      background: var(--surface-container);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded);
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+    }
+    .ticket-item:hover {
+      background: var(--surface-container-high);
+      border-color: var(--secondary);
+    }
+    .ticket-item.is-active {
+      border-color: var(--primary);
+      box-shadow: var(--glow-primary);
+      background: var(--surface-container-high);
+    }
+    .eticket-card {
+      display: grid;
+      gap: var(--space-lg);
+      background: var(--surface-container);
+      border: var(--neon-border-lit);
+      box-shadow: var(--neon-inset);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+    }
+    .eticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-md);
+      padding-bottom: var(--space-md);
+      border-bottom: 1px dashed var(--outline);
+    }
+    .eticket-body {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: var(--space-lg);
+      align-items: center;
+    }
+    .qr-frame {
+      background: var(--qr-paper);
+      padding: var(--space-md);
+      border-radius: var(--rounded);
+      border: 2px solid var(--secondary);
+      box-shadow: var(--glow-secondary);
+      display: inline-grid;
+      place-items: center;
+      gap: var(--space-xs);
+    }
+    .qr-caption {
+      font-family: var(--font-label);
+      font-size: 0.6875rem;
+      color: var(--qr-ink);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    .eticket-specs {
+      display: grid;
+      gap: var(--space-sm);
+    }
+    .spec-item {
+      display: grid;
+      gap: 2px;
+    }
+    .spec-label {
+      font-family: var(--font-label);
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--on-surface-variant);
+    }
+    .spec-value {
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+
+    /* Transaction Table */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded-lg);
+      background: var(--surface-container);
+    }
+    .tx-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .tx-table th {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--on-surface-variant);
+      background: var(--surface-container-low);
+      padding: var(--space-md);
+      border-bottom: 1px solid var(--outline);
+      white-space: nowrap;
+    }
+    .tx-table td {
+      padding: var(--space-md);
+      border-bottom: 1px solid var(--outline-variant);
+      vertical-align: middle;
+    }
+    .tx-table tbody tr:nth-child(even) {
+      background: var(--surface-container-low);
+    }
+    .tx-table tbody tr:hover {
+      background: var(--surface-container-high);
+    }
+    .mono-num {
+      font-family: var(--font-label);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Empty & Alert States */
+    .empty-state {
+      display: grid;
+      justify-items: start;
+      gap: var(--space-md);
+      padding: var(--space-xl);
+      background: var(--surface-container-low);
+      border: 1px dashed var(--outline);
+      border-radius: var(--rounded-lg);
+    }
+    .inline-notice {
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--rounded);
+      border-left: 3px solid var(--secondary);
+      background: var(--surface-container-low);
+      color: var(--on-surface);
+      font-size: 0.875rem;
+    }
+    .inline-notice.is-warning {
+      border-left-color: var(--tertiary);
+    }
+    .inline-notice.is-error {
+      border-left-color: var(--error);
+    }
+
+    /* Footer */
+    .site-footer {
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--outline-variant);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+      color: var(--on-surface-variant);
+      font-size: 0.8125rem;
+    }
+
+    /* Mobile & Narrow Pane Adaptation */
+    @media (max-width: 980px) {
+      .catalog-workspace,
+      .checkout-grid,
+      .tickets-layout,
+      .analytics-strip {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .inspector-panel {
+        position: static;
+      }
+      .filter-controls-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-shell {
+        padding: var(--space-md);
+      }
+      .filter-controls-row,
+      .form-grid-2,
+      .kpi-grid,
+      .step-indicator {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .eticket-body {
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: start;
+      }
+      .bar-row {
+        grid-template-columns: minmax(0, 110px) minmax(0, 1fr) auto;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="masthead">
+      <div class="masthead-top">
+        <div class="brand-block">
+          <p class="kicker">YESPLIS LIVE TICKETING // TERMINAL PEMESANAN</p>
+          <h1 class="masthead-title">Katalog Acara &amp; Dasbor E-Ticket Yesplis</h1>
+          <p class="masthead-sub">Jelajahi 24 agenda konser, festival, olahraga, dan acara kampus di Indonesia. Pilih varian tiket secara real-time, selesaikan checkout, dan terbitkan E-Ticket ber-QR code.</p>
+        </div>
+        <nav class="nav-bar" aria-label="Navigasi Utama">
+          <button type="button" class="nav-tab" id="tab-katalog" aria-selected="true" onclick="switchTab('katalog')">
+            <span>Beranda &amp; Katalog</span>
+            <span class="nav-count" id="nav-count-katalog">24</span>
+          </button>
+          <button type="button" class="nav-tab" id="tab-checkout" aria-selected="false" onclick="switchTab('checkout')">
+            <span>Checkout</span>
+            <span class="nav-count" id="nav-count-cart">0</span>
+          </button>
+          <button type="button" class="nav-tab" id="tab-tiket" aria-selected="false" onclick="switchTab('tiket')">
+            <span>Tiket Saya</span>
+            <span class="nav-count" id="nav-count-tickets">0</span>
+          </button>
+          <button type="button" class="nav-tab" id="tab-transaksi" aria-selected="false" onclick="switchTab('transaksi')">
+            <span>Riwayat Transaksi</span>
+            <span class="nav-count" id="nav-count-orders">0</span>
+          </button>
+        </nav>
+      </div>
+
+      <section class="kpi-grid" aria-label="Ringkasan Platform">
+        <div class="neon-panel kpi-card">
+          <span class="kpi-label">Acara Terdaftar</span>
+          <span class="kpi-value" id="kpi-total-events">24</span>
+          <span class="kpi-caption">Nov 2026 – Jul 2027</span>
+        </div>
+        <div class="neon-panel is-cyan kpi-card is-cyan">
+          <span class="kpi-label">Rentang Tiket</span>
+          <span class="kpi-value">Gratis – Rp 359 rb</span>
+          <span class="kpi-caption">22 harga terbuka, 2 TBA</span>
+        </div>
+        <div class="neon-panel kpi-card">
+          <span class="kpi-label">E-Ticket Aktif</span>
+          <span class="kpi-value" id="kpi-active-tickets">0</span>
+          <span class="kpi-caption" id="kpi-checkin-caption">Siap dipindai di venue</span>
+        </div>
+        <div class="neon-panel is-cyan kpi-card is-cyan">
+          <span class="kpi-label">Total Transaksi</span>
+          <span class="kpi-value" id="kpi-total-spent">Rp 0</span>
+          <span class="kpi-caption" id="kpi-orders-caption">0 pesanan tercatat</span>
+        </div>
+      </section>
+    </header>
+
+    <!-- VIEW 1: KATALOG ACARA -->
+    <main id="view-katalog" class="view-panel is-active" aria-label="Katalog Acara">
+      <section class="neon-panel is-neutral filter-panel" aria-label="Pencarian dan Filter Acara">
+        <div class="filter-controls-row">
+          <div class="field-group">
+            <label class="field-label" for="search-input">Cari Acara, Venue, atau Kota</label>
+            <input type="search" id="search-input" class="field-input" placeholder="Ketik mis. Verisvelle, Yogyakarta, Run…" oninput="applyFilters()">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="region-select">Wilayah / Provinsi</label>
+            <select id="region-select" class="field-select" onchange="applyFilters()">
+              <option value="ALL">Semua Wilayah</option>
+              <option value="DI Yogyakarta">DI Yogyakarta</option>
+              <option value="Jawa Barat">Jawa Barat</option>
+              <option value="Jawa Timur">Jawa Timur</option>
+              <option value="Jabodetabek & Banten">DKI Jakarta &amp; Banten</option>
+              <option value="Luar Jawa">Luar Jawa (Bali, Batam, Lampung, Medan)</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="price-select">Batas Harga Mulai</label>
+            <select id="price-select" class="field-select" onchange="applyFilters()">
+              <option value="ALL">Semua Harga</option>
+              <option value="FREE_50">Gratis &amp; s.d. Rp 50.000</option>
+              <option value="UNDER_100">Maksimal Rp 100.000</option>
+              <option value="OVER_100">Di atas Rp 100.000</option>
+              <option value="TBA">Harga Segera Diumumkan (TBA)</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="sort-select">Urutkan</label>
+            <select id="sort-select" class="field-select" onchange="applyFilters()">
+              <option value="DATE_ASC">Jadwal Terdekat</option>
+              <option value="PRICE_ASC">Harga Termurah</option>
+              <option value="PRICE_DESC">Harga Termahal</option>
+              <option value="NAME_ASC">Nama Acara (A–Z)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="chip-row" role="group" aria-label="Filter Kategori Acara" id="category-chips">
+          <button type="button" class="filter-chip" aria-pressed="true" onclick="setCategoryFilter('ALL')">Semua (24)</button>
+          <button type="button" class="filter-chip" aria-pressed="false" onclick="setCategoryFilter('Festival')">Festival</button>
+          <button type="button" class="filter-chip" aria-pressed="false" onclick="setCategoryFilter('Konser')">Konser</button>
+          <button type="button" class="filter-chip" aria-pressed="false" onclick="setCategoryFilter('Olahraga')">Olahraga</button>
+          <button type="button" class="filter-chip" aria-pressed="false" onclick="setCategoryFilter('Edukasi & Komunitas')">Edukasi &amp; Komunitas</button>
+          <button type="button" class="filter-chip" aria-pressed="false" onclick="setCategoryFilter('Seni & Pameran')">Seni &amp; Pameran</button>
+          <button type="button" class="filter-chip" aria-pressed="false" id="btn-watchlist-only" onclick="toggleWatchlistFilter()">Dipantau (<span id="watchlist-count">0</span>)</button>
+        </div>
+
+        <div class="filter-meta-bar">
+          <span id="filter-result-label">Menampilkan 24 dari 24 acara</span>
+          <button type="button" class="btn-neon is-ghost" onclick="resetCatalogFilters()">Atur Ulang Filter</button>
+        </div>
+      </section>
+
+      <section class="catalog-workspace">
+        <div style="display: grid; gap: var(--space-md);">
+          <div class="events-grid" id="events-grid"></div>
+          <div id="events-empty" class="empty-state" style="display: none;">
+            <p class="kicker">TIDAK ADA ACARA YANG COCOK</p>
+            <p style="margin: 0; color: var(--on-surface-variant);">Filter pencarian Anda tidak menemukan acara yang sesuai. Coba perluas wilayah atau hapus kata kunci.</p>
+            <button type="button" class="btn-neon is-cyan" onclick="resetCatalogFilters()">Tampilkan Semua 24 Acara</button>
+          </div>
+        </div>
+
+        <!-- Ticket Configurator Panel -->
+        <aside class="neon-panel inspector-panel" aria-label="Konfigurator Tiket Acara">
+          <div id="inspector-content"></div>
+        </aside>
+      </section>
+
+      <!-- Catalog Distribution Insight -->
+      <section class="analytics-strip" aria-label="Statistik Sebaran Katalog Acara">
+        <div class="neon-panel is-neutral">
+          <p class="kicker">DISTRIBUSI KATEGORI ACARA</p>
+          <h2 class="section-heading" style="margin-top: var(--space-xs);">Komposisi 24 Agenda di Katalog Yesplis</h2>
+          <div class="bar-chart-rows" id="category-chart"></div>
+        </div>
+        <div class="neon-panel is-cyan">
+          <p class="kicker">KOTA PENYELENGGARA TERPADAT</p>
+          <h2 class="section-heading" style="margin-top: var(--space-xs);">Sebaran Wilayah Indonesia</h2>
+          <div class="bar-chart-rows" id="region-chart"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- VIEW 2: ALUR CHECKOUT INTERAKTIF -->
+    <section id="view-checkout" class="view-panel" aria-label="Alur Checkout Tiket">
+      <div class="step-indicator" aria-label="Tahapan Checkout">
+        <div class="step-pill is-active" id="step-pill-1">01 // Data Pemesan &amp; Promo</div>
+        <div class="step-pill" id="step-pill-2">02 // Metode Pembayaran</div>
+        <div class="step-pill" id="step-pill-3">03 // Konfirmasi &amp; E-Ticket</div>
+      </div>
+
+      <div id="checkout-empty" class="empty-state" style="display: none;">
+        <p class="kicker">KERANJANG CHECKOUT KOSONG</p>
+        <h2 class="section-heading">Belum ada varian tiket yang dipilih</h2>
+        <p style="margin: 0; color: var(--on-surface-variant); max-width: 60ch;">Pilih acara dari katalog dan tentukan jumlah tiket Presale, General Admission, atau VIP terlebih dahulu untuk memulai checkout.</p>
+        <button type="button" class="btn-neon" onclick="switchTab('katalog')">Pilih Acara di Katalog</button>
+      </div>
+
+      <div id="checkout-workspace" class="checkout-grid">
+        <div class="neon-panel" id="checkout-step-container">
+          <!-- Step 1 -->
+          <div id="checkout-step-1" style="display: grid; gap: var(--space-md);">
+            <div>
+              <p class="kicker">TAHAP 01 // IDENTITAS PEMEGANG E-TICKET</p>
+              <h2 class="section-heading">Lengkapi Data Pemesan</h2>
+            </div>
+            <div class="form-grid-2">
+              <div class="field-group">
+                <label class="field-label" for="buyer-name">Nama Lengkap Sesuai Identitas</label>
+                <input type="text" id="buyer-name" class="field-input" placeholder="Contoh: Raka Pratama" oninput="syncBuyerField('name', this.value)">
+                <span class="field-error" id="err-buyer-name"></span>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="buyer-email">Alamat Email Pengiriman E-Ticket</label>
+                <input type="email" id="buyer-email" class="field-input" placeholder="nama@domain.com" oninput="syncBuyerField('email', this.value)">
+                <span class="field-error" id="err-buyer-email"></span>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="buyer-phone">Nomor WhatsApp Aktif</label>
+                <input type="tel" id="buyer-phone" class="field-input" placeholder="081234567890" oninput="syncBuyerField('phone', this.value)">
+                <span class="field-error" id="err-buyer-phone"></span>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="buyer-idnum">Nomor Identitas (KTP / KTM / SIM)</label>
+                <input type="text" id="buyer-idnum" class="field-input" placeholder="3273xxxxxxxxxxxx" oninput="syncBuyerField('idnum', this.value)">
+                <span class="field-error" id="err-buyer-idnum"></span>
+              </div>
+            </div>
+
+            <div class="neon-panel is-neutral" style="padding: var(--space-md); display: grid; gap: var(--space-sm);">
+              <div style="display: flex; flex-wrap: wrap; gap: var(--space-sm); align-items: end;">
+                <div class="field-group" style="flex: 1; min-width: 200px;">
+                  <label class="field-label" for="promo-input">Kode Promo (Opsional — coba YESPLIS10 atau FESTIVAL25)</label>
+                  <input type="text" id="promo-input" class="field-input" placeholder="Masukkan kode promo">
+                </div>
+                <button type="button" class="btn-neon is-cyan" onclick="applyPromoCode()">Terapkan Promo</button>
+              </div>
+              <div id="promo-feedback" style="font-size: 0.875rem; color: var(--on-surface-variant);"></div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-sm);">
+              <button type="button" class="btn-neon is-ghost" onclick="switchTab('katalog')">Kembali ke Katalog</button>
+              <button type="button" class="btn-neon" onclick="goToCheckoutStep(2)">Lanjut ke Pembayaran</button>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div id="checkout-step-2" style="display: none; gap: var(--space-md);">
+            <div>
+              <p class="kicker">TAHAP 02 // KANAL PEMBAYARAN</p>
+              <h2 class="section-heading">Pilih Metode Pembayaran</h2>
+            </div>
+            <div class="payment-options" role="radiogroup" aria-label="Pilih Metode Pembayaran">
+              <label class="payment-option" id="pay-opt-qris">
+                <span style="display: flex; align-items: center; gap: var(--space-md);">
+                  <input type="radio" name="paymentMethod" value="QRIS Instan" onchange="selectPaymentMethod(this.value)">
+                  <span>
+                    <strong style="display: block;">QRIS Instan</strong>
+                    <span style="font-size: 0.8125rem; color: var(--on-surface-variant);">Dukungan semua bank &amp; e-wallet (verifikasi otomatis)</span>
+                  </span>
+                </span>
+                <span class="badge is-cyan">Instan</span>
+              </label>
+
+              <label class="payment-option" id="pay-opt-va">
+                <span style="display: flex; align-items: center; gap: var(--space-md);">
+                  <input type="radio" name="paymentMethod" value="Virtual Account Bank" onchange="selectPaymentMethod(this.value)">
+                  <span>
+                    <strong style="display: block;">Virtual Account (BCA / Mandiri / BNI / BRI)</strong>
+                    <span style="font-size: 0.8125rem; color: var(--on-surface-variant);">Nomor VA unik terbit otomatis setelah konfirmasi</span>
+                  </span>
+                </span>
+                <span class="badge">VA 24 Jam</span>
+              </label>
+
+              <label class="payment-option" id="pay-opt-ewallet">
+                <span style="display: flex; align-items: center; gap: var(--space-md);">
+                  <input type="radio" name="paymentMethod" value="E-Wallet (GoPay / OVO / DANA)" onchange="selectPaymentMethod(this.value)">
+                  <span>
+                    <strong style="display: block;">E-Wallet (GoPay / OVO / DANA)</strong>
+                    <span style="font-size: 0.8125rem; color: var(--on-surface-variant);">Pembayaran satu ketuk dari aplikasi dompet digital</span>
+                  </span>
+                </span>
+                <span class="badge is-pink">Populer</span>
+              </label>
+            </div>
+            <div class="field-error" id="err-payment-method"></div>
+
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-sm);">
+              <button type="button" class="btn-neon is-ghost" onclick="goToCheckoutStep(1)">Ubah Data Pemesan</button>
+              <button type="button" class="btn-neon" onclick="goToCheckoutStep(3)">Tinjau &amp; Bayar</button>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div id="checkout-step-3" style="display: none; gap: var(--space-md);">
+            <div>
+              <p class="kicker">TAHAP 03 // OTORISASI &amp; PENERBITAN E-TICKET</p>
+              <h2 class="section-heading">Konfirmasi Akhir Pesanan</h2>
+            </div>
+            <div class="neon-panel is-cyan" style="display: grid; gap: var(--space-sm);" id="checkout-review-box"></div>
+            <div class="inline-notice is-warning">
+              Ini adalah simulasi pembayaran interaktif. Menekan tombol konfirmasi akan mencatat transaksi ke dasbor Anda dan menerbitkan E-Ticket beserta QR code unik.
+            </div>
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-sm);">
+              <button type="button" class="btn-neon is-ghost" onclick="goToCheckoutStep(2)">Ganti Metode Bayar</button>
+              <button type="button" class="btn-neon is-cyan" onclick="completeCheckout()">Konfirmasi Pembayaran &amp; Terbitkan E-Ticket</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="neon-panel is-cyan" aria-label="Ringkasan Pesanan Checkout">
+          <p class="kicker">RINGKASAN PESANAN</p>
+          <div id="checkout-summary-box" style="display: grid; gap: var(--space-md); margin-top: var(--space-sm);"></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- VIEW 3: TIKET SAYA & E-TICKET QR -->
+    <section id="view-tiket" class="view-panel" aria-label="Tiket Saya">
+      <div id="tickets-empty" class="empty-state" style="display: none;">
+        <p class="kicker">DOMPET E-TICKET KOSONG</p>
+        <h2 class="section-heading">Anda belum memiliki E-Ticket aktif</h2>
+        <p style="margin: 0; color: var(--on-surface-variant); max-width: 60ch;">Setiap tiket yang Anda pesan akan terbit di sini lengkap dengan kode booking unik, detail kategori (Presale / VIP / General Admission), status check-in, dan QR code untuk pemindaian di gerbang acara.</p>
+        <button type="button" class="btn-neon" onclick="switchTab('katalog')">Pesan Tiket Pertama Anda</button>
+      </div>
+
+      <div id="tickets-populated" class="tickets-layout">
+        <div style="display: grid; gap: var(--space-md);">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
+            <div>
+              <p class="kicker">KOLEKSI E-TICKET</p>
+              <h2 class="section-heading">Daftar Tiket Anda</h2>
+            </div>
+            <div class="chip-row">
+              <button type="button" class="filter-chip" id="ticket-filter-all" aria-pressed="true" onclick="setTicketFilter('ALL')">Semua</button>
+              <button type="button" class="filter-chip" id="ticket-filter-active" aria-pressed="false" onclick="setTicketFilter('AKTIF')">Aktif</button>
+              <button type="button" class="filter-chip" id="ticket-filter-used" aria-pressed="false" onclick="setTicketFilter('CHECK-IN')">Check-In</button>
+            </div>
+          </div>
+          <div class="ticket-list" id="ticket-list"></div>
+        </div>
+
+        <div id="eticket-detail-pane"></div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: DASBOR RIWAYAT TRANSAKSI -->
+    <section id="view-transaksi" class="view-panel" aria-label="Dasbor Riwayat Transaksi">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: var(--space-md); flex-wrap: wrap;">
+        <div>
+          <p class="kicker">AUDIT &amp; REKAP PEMESANAN</p>
+          <h2 class="section-heading">Dasbor Riwayat Transaksi</h2>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: var(--space-sm);">
+          <button type="button" class="btn-neon is-cyan" id="btn-export-csv" onclick="exportTransactionsCsv()">Ekspor CSV</button>
+          <button type="button" class="btn-neon is-danger" id="btn-reset-data" onclick="handleResetState(this)">Reset Semua Data</button>
+        </div>
+      </div>
+
+      <div id="orders-empty" class="empty-state" style="display: none;">
+        <p class="kicker">BELUM ADA RIWAYAT TRANSAKSI</p>
+        <h2 class="section-heading">Riwayat pesanan Anda masih kosong</h2>
+        <p style="margin: 0; color: var(--on-surface-variant); max-width: 60ch;">Selesaikan pemesanan tiket pada salah satu acara untuk melihat ringkasan pengeluaran, metode pembayaran, kode booking, dan akses unduh E-Ticket.</p>
+        <button type="button" class="btn-neon" onclick="switchTab('katalog')">Mulai Jelajahi Acara</button>
+      </div>
+
+      <div id="orders-populated" style="display: grid; gap: var(--space-lg);">
+        <div class="kpi-grid" id="tx-summary-cards"></div>
+        <div class="table-wrap">
+          <table class="tx-table">
+            <thead>
+              <tr>
+                <th>Kode Pesanan</th>
+                <th>Tanggal</th>
+                <th>Acara &amp; Rincian Tiket</th>
+                <th>Metode Bayar</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tx-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <span>Sumber katalog: daftar agenda Yesplis (24 acara Indonesia, Nov 2026 – Jul 2027). Data pesanan &amp; E-Ticket tersimpan otomatis pada sesi Anda.</span>
+      <span class="mono-num">STATUS SISTEM: ONLINE // QR-V3 ENGINE AKTIF</span>
+    </footer>
+  </div>
+
+  <api-shim></api-shim>
+  <script>
+    // =========================================================================
+    // 1. DATASET ACARA (24 Acara Lengkap dari Sumber Yesplis)
+    // =========================================================================
+    const EVENTS = [
+      {
+        id: `psgc-vs-persiku`,
+        title: `PSGC VS PERSIKU`,
+        category: `Olahraga`,
+        dateStr: `21 Nov 2026`,
+        timeStr: `19:00 - 21:00 WIB`,
+        sortDate: `2026-11-21`,
+        venue: `Stadion Galuh`,
+        city: `Kab. Ciamis, Jawa Barat`,
+        region: `Jawa Barat`,
+        price: 30000,
+        priceLabel: `Rp 30.000`,
+        desc: `Laga pertandingan malam di Stadion Galuh Ciamis antara PSGC menghadapi Persiku dengan pilihan tribun reguler hingga VIP.`
+      },
+      {
+        id: `edupreneur`,
+        title: `EDUPRENEUR 2026`,
+        category: `Edukasi & Komunitas`,
+        dateStr: `21 Nov 2026`,
+        timeStr: `10:45 - 14:00 WIB`,
+        sortDate: `2026-11-21`,
+        venue: `Telkom University`,
+        city: `Kab. Bandung, Jawa Barat`,
+        region: `Jawa Barat`,
+        price: 50000,
+        priceLabel: `Rp 50.000`,
+        desc: `Forum kewirausahaan dan edukasi bisnis kampus di Telkom University Bandung untuk mahasiswa serta perintis usaha muda.`
+      },
+      {
+        id: `teknik-open-house-2026`,
+        title: `TEKNIK OPEN HOUSE UNIVERSITAS INDONESIA 2026`,
+        category: `Edukasi & Komunitas`,
+        dateStr: `21 Nov 2026`,
+        timeStr: `06:45 - 16:00 WIB`,
+        sortDate: `2026-11-21`,
+        venue: `Fakultas Teknik Universitas Indonesia`,
+        city: `Kota Depok, Jawa Barat`,
+        region: `Jawa Barat`,
+        price: 45000,
+        priceLabel: `Rp 45.000`,
+        desc: `Eksplorasi program studi, tur laboratorium teknik, dan sesi konsultasi akademik langsung di Kampus FTUI Depok.`
+      },
+      {
+        id: `gissense-2026`,
+        title: `GISSENSE 2026`,
+        category: `Festival`,
+        dateStr: `21 Nov 2026`,
+        timeStr: `13:00 - 18:00 WIB`,
+        sortDate: `2026-11-21`,
+        venue: `Lapangan Hijau GIS 2 Serpong`,
+        city: `Kota Tangerang Selatan, Banten`,
+        region: `Jabodetabek & Banten`,
+        price: 65000,
+        priceLabel: `Rp 65.000`,
+        desc: `Festival musik dan kreativitas pelajar di Lapangan Hijau GIS 2 Serpong dengan panggung terbuka serta bazar kuliner.`
+      },
+      {
+        id: `atlanticus-run-2026`,
+        title: `ATLANTICUS RUN 2026`,
+        category: `Olahraga`,
+        dateStr: `21 Nov 2026`,
+        timeStr: `05:00 - 23:59 WIB`,
+        sortDate: `2026-11-21`,
+        venue: `Lapangan Krida Alap Alap`,
+        city: `Kota Malang, Jawa Timur`,
+        region: `Jawa Timur`,
+        price: null,
+        priceLabel: `Rp *** (TBA)`,
+        desc: `Agenda lari komunitas di Kota Malang. Harga tiket resmi sedang dalam tahap pembaruan oleh penyelenggara.`
+      },
+      {
+        id: `rockin-surabaya-2026`,
+        title: `ROCKIN' SURABAYA 2026`,
+        category: `Konser`,
+        dateStr: `22 Nov 2026`,
+        timeStr: `12:00 - 23:59 WIB`,
+        sortDate: `2026-11-22`,
+        venue: `Parkir Timur Plaza Surabaya`,
+        city: `Kota Surabaya, Jawa Timur`,
+        region: `Jawa Timur`,
+        price: 100000,
+        priceLabel: `Rp 100.000`,
+        desc: `Panggung konser musik rock seharian penuh di Parkir Timur Plaza Surabaya dari siang hingga tengah malam.`
+      },
+      {
+        id: `pinasthikafest2026`,
+        title: `PINASTHIKA CREATIVESTIVAL 2026`,
+        category: `Festival`,
+        dateStr: `27 - 28 Nov 2026`,
+        timeStr: `08:00 - 17:00 WIB`,
+        sortDate: `2026-11-27`,
+        venue: `Mustika Yogyakarta Resort & Spa`,
+        city: `Kab. Sleman, DI Yogyakarta`,
+        region: `DI Yogyakarta`,
+        price: 359000,
+        priceLabel: `Rp 359.000`,
+        desc: `Festival periklanan, desain, dan industri kreatif dua hari di Mustika Yogyakarta Resort & Spa, Sleman.`
+      },
+      {
+        id: `natal-mahasiswa-kristen-ugm-2026`,
+        title: `NATAL MAHASISWA KRISTEN UGM 2026`,
+        category: `Edukasi & Komunitas`,
+        dateStr: `03 Des 2026`,
+        timeStr: `17:00 - 20:00 WIB`,
+        sortDate: `2026-12-03`,
+        venue: `Grha Sabha Pramana Universitas Gadjah Mada`,
+        city: `Kab. Sleman, DI Yogyakarta`,
+        region: `DI Yogyakarta`,
+        price: 0,
+        priceLabel: `Gratis`,
+        desc: `Perayaan Natal bersama sivitas akademika dan mahasiswa Kristen UGM di Grha Sabha Pramana dengan reservasi E-Ticket gratis.`
+      },
+      {
+        id: `namboru-fest-2026`,
+        title: `NAMBORU FEST`,
+        category: `Festival`,
+        dateStr: `03 Des 2026`,
+        timeStr: `14:00 - 22:00 WIB`,
+        sortDate: `2026-12-03`,
+        venue: `Gedung Gelanggang Mahasiswa Haji Anif UNIMED`,
+        city: `Kota Medan, Sumatera Utara`,
+        region: `Luar Jawa`,
+        price: 50000,
+        priceLabel: `Rp 50.000`,
+        desc: `Festival musik dan pentas seni kampus di Gelanggang Mahasiswa UNIMED Medan dengan sajian band dan kuliner lokal.`
+      },
+      {
+        id: `festiversary-anniversary-3rd-goalpara-tea-park`,
+        title: `FESTIVERSARY ANNIVERSARY 3RD GOALPARA TEA PARK`,
+        category: `Festival`,
+        dateStr: `06 Des 2026`,
+        timeStr: `09:00 - 17:00 WIB`,
+        sortDate: `2026-12-06`,
+        venue: `Goalpara Tea Park`,
+        city: `Kab. Sukabumi, Jawa Barat`,
+        region: `Jawa Barat`,
+        price: 50000,
+        priceLabel: `Rp 50.000`,
+        desc: `Perayaan hari jadi ke-3 Goalpara Tea Park Sukabumi bernuansa festival alam terbuka di kawasan kebun teh.`
+      },
+      {
+        id: `stride-cup`,
+        title: `STRIDE CUP`,
+        category: `Olahraga`,
+        dateStr: `06 Des 2026`,
+        timeStr: `05:00 - 10:00 WIB`,
+        sortDate: `2026-12-06`,
+        venue: `Kampus 3 Universitas Sanata Dharma`,
+        city: `Kab. Sleman, DI Yogyakarta`,
+        region: `DI Yogyakarta`,
+        price: 35000,
+        priceLabel: `Rp 35.000`,
+        desc: `Kompetisi lari dan kebugaran pagi di Kampus 3 Universitas Sanata Dharma, Sleman, terbuka untuk pelari umum dan pelajar.`
+      },
+      {
+        id: `homecomingorchestral`,
+        title: `HOMECOMING: AN ORCHESTRAL COLLABORATION`,
+        category: `Konser`,
+        dateStr: `08 Des 2026`,
+        timeStr: `18:00 - 21:00 WIB`,
+        sortDate: `2026-12-08`,
+        venue: `Auditorium Lt 2 Grha Budaya Embung Giwangan`,
+        city: `Kota Yogyakarta, DI Yogyakarta`,
+        region: `DI Yogyakarta`,
+        price: 99000,
+        priceLabel: `Rp 99.000`,
+        desc: `Pertunjukan musik simfoni dan kolaborasi orkestra di Auditorium Grha Budaya Embung Giwangan, Yogyakarta.`
+      },
+      {
+        id: `serasa-gigs-1`,
+        title: `SERASA GIGS`,
+        category: `Konser`,
+        dateStr: `12 Des 2026`,
+        timeStr: `16:00 - 23:00 WIB`,
+        sortDate: `2026-12-12`,
+        venue: `What The Deck, Rooftop Lt. 11 PORTA by Ambarrukmo`,
+        city: `Kota Yogyakarta, DI Yogyakarta`,
+        region: `DI Yogyakarta`,
+        price: 25000,
+        priceLabel: `Rp 25.000`,
+        desc: `Gigs musik intim di rooftop lantai 11 PORTA by Ambarrukmo menikmati senja hingga malam Kota Yogyakarta.`
+      },
+      {
+        id: `himasik-concert`,
+        title: `HIMASIK CONCERT`,
+        category: `Konser`,
+        dateStr: `15 Des 2026`,
+        timeStr: `17:00 - 21:00 WIB`,
+        sortDate: `2026-12-15`,
+        venue: `Performance Hall FBSB UNY`,
+        city: `Kab. Sleman, DI Yogyakarta`,
+        region: `DI Yogyakarta`,
+        price: 55000,
+        priceLabel: `Rp 55.000`,
+        desc: `Konser musik mahasiswa di Performance Hall Fakultas Bahasa, Seni, dan Budaya UNY.`
+      },
+      {
+        id: `for-you-art-exhibition`,
+        title: `FOR YOU - ART EXHIBITION`,
+        category: `Seni & Pameran`,
+        dateStr: `20 Des 2026 - 03 Jan 2027`,
+        timeStr: `07:00 - 23:00 WIB`,
+        sortDate: `2026-12-20`,
+        venue: `Fairmont Jakarta`,
+        city: `Kota Adm. Jakarta Pusat, DKI Jakarta`,
+        region: `Jabodetabek & Banten`,
+        price: null,
+        priceLabel: `Rp *** (TBA)`,
+        desc: `Pameran seni rupa kontemporer di Fairmont Jakarta selama musim libur akhir tahun. Harga tiket akan segera diumumkan.`
+      },
+      {
+        id: `preston-live-fest-closing-party-2027`,
+        title: `PRESTON LIVE FEST CLOSING PARTY 2027`,
+        category: `Festival`,
+        dateStr: `16 Jan 2027`,
+        timeStr: `15:00 - 23:00 WIB`,
+        sortDate: `2027-01-16`,
+        venue: `SM Boomi Carnival Malang`,
+        city: `Kota Malang, Jawa Timur`,
+        region: `Jawa Timur`,
+        price: 55000,
+        priceLabel: `Rp 55.000`,
+        desc: `Pesta penutup Preston Live Fest di SM Boomi Carnival Malang dengan jajaran penampil musik pop dan indie.`
+      },
+      {
+        id: `wonderland-live-festival-2027`,
+        title: `WONDERLAND LIVE FESTIVAL 2027`,
+        category: `Festival`,
+        dateStr: `17 Jan 2027`,
+        timeStr: `14:00 - 23:00 WIB`,
+        sortDate: `2027-01-17`,
+        venue: `Lokasi Segera Diumumkan`,
+        city: `Kota Metro, Lampung`,
+        region: `Luar Jawa`,
+        price: 59000,
+        priceLabel: `Rp 59.000`,
+        desc: `Festival musik langsung di Kota Metro, Lampung dengan pilihan tiket Presale hingga VIP.`
+      },
+      {
+        id: `grand-concert-verisvelle`,
+        title: `GRAND CONCERT OP.9 “VERISVELLE”`,
+        category: `Konser`,
+        dateStr: `23 Jan 2027`,
+        timeStr: `17:30 - 22:30 WIB`,
+        sortDate: `2027-01-23`,
+        venue: `Auditorium Driyarkara Universitas Sanata Dharma`,
+        city: `Kab. Sleman, DI Yogyakarta`,
+        region: `DI Yogyakarta`,
+        price: 127000,
+        priceLabel: `Rp 127.000`,
+        desc: `Konser akbar Opus 9 bertajuk Verisvelle di Auditorium Driyarkara Universitas Sanata Dharma, Sleman.`
+      },
+      {
+        id: `riuh-riang-closing-special-2027`,
+        title: `RIUH RIANG CLOSING SPECIAL 2027`,
+        category: `Festival`,
+        dateStr: `29 Jan 2027`,
+        timeStr: `14:00 - 23:00 WIB`,
+        sortDate: `2027-01-29`,
+        venue: `GOR Preston`,
+        city: `Kota Malang, Jawa Timur`,
+        region: `Jawa Timur`,
+        price: 55000,
+        priceLabel: `Rp 55.000`,
+        desc: `Edisi spesial penutup rangkaian Riuh Riang di GOR Preston Malang dengan tata cahaya panggung penuh.`
+      },
+      {
+        id: `lika-liku-luka`,
+        title: `LIKA-LIKU LUKA`,
+        category: `Konser`,
+        dateStr: `30 Jan 2027`,
+        timeStr: `18:00 - 23:00 WIB`,
+        sortDate: `2027-01-30`,
+        venue: `Politeknik Artificial Intelligence (AI) Budi Mulia Dua`,
+        city: `Kab. Sleman, DI Yogyakarta`,
+        region: `DI Yogyakarta`,
+        price: 50000,
+        priceLabel: `Rp 50.000`,
+        desc: `Pertunjukan musik malam bertema Lika-Liku Luka di Politeknik AI Budi Mulia Dua, Sleman.`
+      },
+      {
+        id: `exalta-2027-funrun`,
+        title: `EXALTA 2027-FUNRUN`,
+        category: `Olahraga`,
+        dateStr: `31 Jan 2027`,
+        timeStr: `04:00 - 12:00 WIB`,
+        sortDate: `2027-01-31`,
+        venue: `SMA Islam Al-Azhar BSD@Cileungsi`,
+        city: `Kab. Bogor, Jawa Barat`,
+        region: `Jawa Barat`,
+        price: 45000,
+        priceLabel: `Rp 45.000`,
+        desc: `Ajang lari santai dan olahraga pagi bersama di kawasan Cileungsi, Kab. Bogor, lengkap dengan race pack.`
+      },
+      {
+        id: `melora-fest-10`,
+        title: `MELORA FEST 1.0`,
+        category: `Festival`,
+        dateStr: `22 Mei 2027`,
+        timeStr: `16:00 - 23:00 WIB`,
+        sortDate: `2027-05-22`,
+        venue: `Stadion Temenggung Abdul Jamal`,
+        city: `Kota Batam, Kepulauan Riau`,
+        region: `Luar Jawa`,
+        price: 122000,
+        priceLabel: `Rp 122.000`,
+        desc: `Festival musik perdana berskala stadion di Stadion Temenggung Abdul Jamal, Kota Batam.`
+      },
+      {
+        id: `jogjajanan2027`,
+        title: `JOGJAJANAN 2027`,
+        category: `Festival`,
+        dateStr: `22 Mei 2027`,
+        timeStr: `14:00 - 22:30 WIB`,
+        sortDate: `2027-05-22`,
+        venue: `Lapangan Pancasila UGM`,
+        city: `Kab. Sleman, DI Yogyakarta`,
+        region: `DI Yogyakarta`,
+        price: 87000,
+        priceLabel: `Rp 87.000`,
+        desc: `Perpaduan festival kuliner Nusantara dan panggung musik sore-malam di Lapangan Pancasila UGM.`
+      },
+      {
+        id: `tgif2027`,
+        title: `THANK GOD IT'S FESTIVAL (TGIF) 2027`,
+        category: `Festival`,
+        dateStr: `03 - 04 Jul 2027`,
+        timeStr: `15:30 - 23:00 WITA`,
+        sortDate: `2027-07-03`,
+        venue: `Bali Maritime Tourism Hub, Port of Benoa`,
+        city: `Kota Denpasar, Bali`,
+        region: `Luar Jawa`,
+        price: 225000,
+        priceLabel: `Rp 225.000`,
+        desc: `Festival musik dua hari tepi pelabuhan di Bali Maritime Tourism Hub, Port of Benoa, Denpasar.`
+      }
+    ];
+
+    const PROMO_CODES = {
+      YESPLIS10: { label: `Diskon 10% (Kode YESPLIS10)`, type: `percent`, value: 10, minSubtotal: 0 },
+      FESTIVAL25: { label: `Potongan Rp 15.000 (Kode FESTIVAL25)`, type: `flat`, value: 15000, minSubtotal: 100000 }
+    };
+
+    const TODAY_ISO = `2026-11-17`;
+
+    // =========================================================================
+    // 2. APPLICATION STATE (Synced with notebookAppApi)
+    // =========================================================================
+    let appState = {
+      activeTab: `katalog`,
+      selectedEventId: `rockin-surabaya-2026`,
+      cart: null, // { eventId, tiers: { presale: 0, ga: 0, vip: 0 } }
+      checkoutStep: 1,
+      promoCode: ``,
+      paymentMethod: `QRIS Instan`,
+      buyer: {
+        name: ``,
+        email: ``,
+        phone: ``,
+        idnum: ``
+      },
+      watchlist: [],
+      orders: [],
+      tickets: [],
+      selectedTicketId: null
+    };
+
+    let catalogFilter = {
+      search: ``,
+      category: `ALL`,
+      region: `ALL`,
+      price: `ALL`,
+      sort: `DATE_ASC`,
+      watchlistOnly: false
+    };
+
+    let ticketFilter = `ALL`;
+
+    function formatRupiah(num) {
+      if (num === null || num === undefined) return `Rp ***`;
+      if (num === 0) return `Gratis`;
+      return `Rp ` + Number(num).toLocaleString(`id-ID`);
+    }
+
+    function formatRupiahStrict(num) {
+      return `Rp ` + Number(num || 0).toLocaleString(`id-ID`);
+    }
+
+    function getEventById(id) {
+      return EVENTS.find((ev) => ev.id === id) || EVENTS[0];
+    }
+
+    function getEventTiers(ev) {
+      if (!ev || ev.price === null) return [];
+      if (ev.price === 0) {
+        return [
+          {
+            key: `presale`,
+            name: `Presale RSVP`,
+            price: 0,
+            quota: 85,
+            perk: `Pendaftaran awal dengan akses masuk reguler dan QR check-in prioritas.`
+          },
+          {
+            key: `ga`,
+            name: `General Admission`,
+            price: 0,
+            quota: 320,
+            perk: `Akses umum area utama sesuai jadwal acara tanpa biaya.`
+          },
+          {
+            key: `vip`,
+            name: `VIP Tamu & Pendukung`,
+            price: 0,
+            quota: 30,
+            perk: `Kursi zona depan dan konfirmasi kehadiran khusus undangan/komunitas.`
+          }
+        ];
+      }
+      const presalePrice = ev.price;
+      const gaPrice = Math.round((ev.price * 1.35) / 1000) * 1000;
+      const vipPrice = Math.round((ev.price * 2.25) / 1000) * 1000;
+      return [
+        {
+          key: `presale`,
+          name: `Presale`,
+          price: presalePrice,
+          quota: 24,
+          perk: `Kuota terbatas harga perdana. Akses masuk area acara reguler.`
+        },
+        {
+          key: `ga`,
+          name: `General Admission`,
+          price: gaPrice,
+          quota: 160,
+          perk: `Tiket reguler standar dengan fleksibilitas jam masuk selama acara.`
+        },
+        {
+          key: `vip`,
+          name: `VIP Pass`,
+          price: vipPrice,
+          quota: 36,
+          perk: `Jalur antrean prioritas, area pandang terbaik, dan suvenir lanyard eksklusif.`
+        }
+      ];
+    }
+
+    function daysUntilEvent(sortDate) {
+      const a = new Date(TODAY_ISO + `T00:00:00`);
+      const b = new Date(sortDate + `T00:00:00`);
+      return Math.round((b - a) / 86400000);
+    }
+
+    async function persistState() {
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === `function`) {
+          await window.notebookAppApi.setAppState({
+            activeTab: appState.activeTab,
+            selectedEventId: appState.selectedEventId,
+            cart: appState.cart,
+            checkoutStep: appState.checkoutStep,
+            promoCode: appState.promoCode,
+            paymentMethod: appState.paymentMethod,
+            buyer: appState.buyer,
+            watchlist: appState.watchlist,
+            orders: appState.orders,
+            tickets: appState.tickets,
+            selectedTicketId: appState.selectedTicketId
+          });
+        }
+      } catch (err) {
+        console.warn(`Gagal menyimpan state:`, err);
+      }
+    }
+
+    function restoreState(saved) {
+      if (!saved || typeof saved !== `object`) return;
+      if (typeof saved.activeTab === `string`) appState.activeTab = saved.activeTab;
+      if (typeof saved.selectedEventId === `string`) appState.selectedEventId = saved.selectedEventId;
+      if (saved.cart && typeof saved.cart === `object`) appState.cart = saved.cart;
+      if (typeof saved.checkoutStep === `number`) appState.checkoutStep = saved.checkoutStep;
+      if (typeof saved.promoCode === `string`) appState.promoCode = saved.promoCode;
+      if (typeof saved.paymentMethod === `string`) appState.paymentMethod = saved.paymentMethod;
+      if (saved.buyer && typeof saved.buyer === `object`) {
+        appState.buyer = {
+          name: saved.buyer.name || ``,
+          email: saved.buyer.email || ``,
+          phone: saved.buyer.phone || ``,
+          idnum: saved.buyer.idnum || ``
+        };
+      }
+      if (Array.isArray(saved.watchlist)) appState.watchlist = saved.watchlist;
+      if (Array.isArray(saved.orders)) appState.orders = saved.orders;
+      if (Array.isArray(saved.tickets)) appState.tickets = saved.tickets;
+      if (typeof saved.selectedTicketId === `string`) appState.selectedTicketId = saved.selectedTicketId;
+    }
+
+    // =========================================================================
+    // 3. REAL-TIME QR CODE GENERATOR (ISO/IEC 18004 Version 3-L, Byte Mode)
+    // =========================================================================
+    const QR_GF_EXP = new Uint8Array(512);
+    const QR_GF_LOG = new Uint8Array(256);
+    (function initGaloisField() {
+      let x = 1;
+      for (let i = 0; i < 255; i++) {
+        QR_GF_EXP[i] = x;
+        QR_GF_LOG[x] = i;
+        x <<= 1;
+        if (x & 0x100) x ^= 0x11d;
+      }
+      for (let i = 255; i < 512; i++) {
+        QR_GF_EXP[i] = QR_GF_EXP[i - 255];
+      }
+    })();
+
+    function qrGfMul(a, b) {
+      if (a === 0 || b === 0) return 0;
+      return QR_GF_EXP[QR_GF_LOG[a] + QR_GF_LOG[b]];
+    }
+
+    function qrPolyMul(p, q) {
+      const res = new Uint8Array(p.length + q.length - 1);
+      for (let i = 0; i < p.length; i++) {
+        for (let j = 0; j < q.length; j++) {
+          res[i + j] ^= qrGfMul(p[i], q[j]);
+        }
+      }
+      return res;
+    }
+
+    function qrBuildMatrix(payloadText) {
+      const size = 29; // Version 3
+      const maxBytes = 53;
+      const enc = [];
+      for (let i = 0; i < payloadText.length && enc.length < maxBytes; i++) {
+        const code = payloadText.charCodeAt(i);
+        enc.push(code < 128 ? code : 63);
+      }
+
+      // Build bit stream: Mode 0100 (4b) + Length (8b) + Data + Terminator
+      const bits = [];
+      function pushBits(val, len) {
+        for (let b = len - 1; b >= 0; b--) {
+          bits.push((val >> b) & 1);
+        }
+      }
+      pushBits(4, 4);
+      pushBits(enc.length, 8);
+      for (let i = 0; i < enc.length; i++) pushBits(enc[i], 8);
+      for (let i = 0; i < 4 && bits.length < 55 * 8; i++) bits.push(0);
+      while (bits.length % 8 !== 0) bits.push(0);
+
+      const dataWords = new Uint8Array(55);
+      let idx = 0;
+      for (let i = 0; i < bits.length; i += 8) {
+        let byteVal = 0;
+        for (let b = 0; b < 8; b++) byteVal = (byteVal << 1) | bits[i + b];
+        dataWords[idx++] = byteVal;
+      }
+      const padBytes = [0xec, 0x11];
+      let padIdx = 0;
+      while (idx < 55) {
+        dataWords[idx++] = padBytes[padIdx % 2];
+        padIdx++;
+      }
+
+      // RS Generator for 15 EC codewords
+      let gen = new Uint8Array([1]);
+      for (let i = 0; i < 15; i++) {
+        gen = qrPolyMul(gen, new Uint8Array([1, QR_GF_EXP[i]]));
+      }
+      const msg = new Uint8Array(70);
+      msg.set(dataWords, 0);
+      for (let i = 0; i < 55; i++) {
+        const factor = msg[i];
+        if (factor !== 0) {
+          for (let j = 0; j < gen.length; j++) {
+            msg[i + j] ^= qrGfMul(gen[j], factor);
+          }
+        }
+      }
+      const allBytes = new Uint8Array(70);
+      allBytes.set(dataWords, 0);
+      allBytes.set(msg.slice(55), 55);
+
+      const totalBits = [];
+      for (let i = 0; i < allBytes.length; i++) {
+        for (let b = 7; b >= 0; b--) {
+          totalBits.push((allBytes[i] >> b) & 1);
+        }
+      }
+      // Version 3 remainder bits: 7 zeros
+      for (let i = 0; i < 7; i++) totalBits.push(0);
+
+      // Prepare grid: -1 = empty, 0 = white, 1 = black
+      const grid = Array.from({ length: size }, () => new Int8Array(size).fill(-1));
+      const reserved = Array.from({ length: size }, () => new Uint8Array(size));
+
+      function setFixed(r, c, val) {
+        if (r >= 0 && r < size && c >= 0 && c < size) {
+          grid[r][c] = val ? 1 : 0;
+          reserved[r][c] = 1;
+        }
+      }
+
+      function placeFinder(top, left) {
+        for (let r = -1; r <= 7; r++) {
+          for (let c = -1; c <= 7; c++) {
+            const rr = top + r;
+            const cc = left + c;
+            if (rr < 0 || rr >= size || cc < 0 || cc >= size) continue;
+            if (r === -1 || r === 7 || c === -1 || c === 7) {
+              setFixed(rr, cc, 0);
+            } else {
+              const onBorder = r === 0 || r === 6 || c === 0 || c === 6;
+              const inCore = r >= 2 && r <= 4 && c >= 2 && c <= 4;
+              setFixed(rr, cc, onBorder || inCore ? 1 : 0);
+            }
+          }
+        }
+      }
+
+      placeFinder(0, 0);
+      placeFinder(0, size - 7);
+      placeFinder(size - 7, 0);
+
+      // Alignment pattern at (22, 22)
+      for (let r = -2; r <= 2; r++) {
+        for (let c = -2; c <= 2; c++) {
+          const onEdge = Math.abs(r) === 2 || Math.abs(c) === 2;
+          const isCenter = r === 0 && c === 0;
+          setFixed(22 + r, 22 + c, onEdge || isCenter ? 1 : 0);
+        }
+      }
+
+      // Timing patterns
+      for (let i = 8; i < size - 8; i++) {
+        setFixed(6, i, i % 2 === 0 ? 1 : 0);
+        setFixed(i, 6, i % 2 === 0 ? 1 : 0);
+      }
+
+      // Dark module
+      setFixed(size - 8, 8, 1);
+
+      // Reserve format areas
+      for (let i = 0; i < 9; i++) {
+        if (i !== 6) {
+          reserved[8][i] = 1;
+          reserved[i][8] = 1;
+        }
+      }
+      for (let i = 0; i < 8; i++) {
+        reserved[8][size - 1 - i] = 1;
+        if (i < 7) reserved[size - 1 - i][8] = 1;
+      }
+
+      // Zig-zag data placement + Mask 0 ((r + c) % 2 === 0)
+      let bitPtr = 0;
+      let dir = -1;
+      for (let col = size - 1; col > 0; col -= 2) {
+        if (col === 6) col--;
+        for (let i = 0; i < size; i++) {
+          const r = dir === -1 ? size - 1 - i : i;
+          for (let dx = 0; dx < 2; dx++) {
+            const c = col - dx;
+            if (!reserved[r][c]) {
+              const rawBit = bitPtr < totalBits.length ? totalBits[bitPtr++] : 0;
+              const masked = ((r + c) % 2 === 0) ? (rawBit ^ 1) : rawBit;
+              grid[r][c] = masked;
+            }
+          }
+        }
+        dir *= -1;
+      }
+
+      // Format info: EC Level L (01) + Mask 0 (000) -> 0x77c4 (111011111000100)
+      const fmtBits = 0x77c4;
+      for (let i = 0; i < 15; i++) {
+        const bit = (fmtBits >> (14 - i)) & 1;
+        // Top-left horizontal & vertical
+        if (i < 6) setFixed(8, i, bit);
+        else if (i === 6) setFixed(8, 7, bit);
+        else if (i === 7) setFixed(8, 8, bit);
+        else if (i === 8) setFixed(7, 8, bit);
+        else setFixed(14 - i, 8, bit);
+
+        // Top-right & bottom-left
+        if (i < 8) setFixed(size - 1 - i, 8, bit);
+        else setFixed(8, size - 15 + i, bit);
+      }
+
+      return grid;
+    }
+
+    function renderQrSvg(payloadText) {
+      const matrix = qrBuildMatrix(payloadText);
+      const size = matrix.length;
+      const quiet = 2;
+      const total = size + quiet * 2;
+      let rects = ``;
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (matrix[r][c] === 1) {
+            rects += `<rect x="${c + quiet}" y="${r + quiet}" width="1" height="1"/>`;
+          }
+        }
+      }
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" width="168" height="168" role="img" aria-label="QR Code Verifikasi E-Ticket" shape-rendering="crispEdges"><rect width="${total}" height="${total}" fill="var(--qr-paper)"/><g fill="var(--qr-ink)">${rects}</g></svg>`;
+    }
+
+    // =========================================================================
+    // 4. TAB NAVIGATION & HEADER COUNTS
+    // =========================================================================
+    function switchTab(tabName) {
+      appState.activeTab = tabName;
+      const tabs = [`katalog`, `checkout`, `tiket`, `transaksi`];
+      tabs.forEach((name) => {
+        const btn = document.getElementById(`tab-${name}`);
+        const view = document.getElementById(`view-${name}`);
+        const isTarget = name === tabName;
+        if (btn) btn.setAttribute(`aria-selected`, isTarget ? `true` : `false`);
+        if (view) view.classList.toggle(`is-active`, isTarget);
+      });
+      if (tabName === `checkout`) renderCheckoutView();
+      if (tabName === `tiket`) renderTicketsView();
+      if (tabName === `transaksi`) renderTransactionsView();
+      persistState();
+    }
+
+    function updateHeaderMetrics() {
+      const cartQty = getCartTotalQty();
+      const activeTickets = appState.tickets.filter((t) => t.status === `AKTIF`).length;
+      const checkinTickets = appState.tickets.filter((t) => t.status === `CHECK-IN`).length;
+      const totalSpent = appState.orders.reduce((acc, o) => acc + o.total, 0);
+
+      const navCart = document.getElementById(`nav-count-cart`);
+      const navTickets = document.getElementById(`nav-count-tickets`);
+      const navOrders = document.getElementById(`nav-count-orders`);
+      if (navCart) navCart.textContent = String(cartQty);
+      if (navTickets) navTickets.textContent = String(appState.tickets.length);
+      if (navOrders) navOrders.textContent = String(appState.orders.length);
+
+      const kpiTickets = document.getElementById(`kpi-active-tickets`);
+      const kpiCheckin = document.getElementById(`kpi-checkin-caption`);
+      const kpiSpent = document.getElementById(`kpi-total-spent`);
+      const kpiOrders = document.getElementById(`kpi-orders-caption`);
+      if (kpiTickets) kpiTickets.textContent = String(activeTickets);
+      if (kpiCheckin) {
+        kpiCheckin.textContent = checkinTickets > 0
+          ? `${checkinTickets} tiket sudah check-in`
+          : `Siap dipindai di venue`;
+      }
+      if (kpiSpent) kpiSpent.textContent = formatRupiahStrict(totalSpent);
+      if (kpiOrders) kpiOrders.textContent = `${appState.orders.length} pesanan tercatat`;
+
+      const watchCount = document.getElementById(`watchlist-count`);
+      if (watchCount) watchCount.textContent = String(appState.watchlist.length);
+    }
+
+    // =========================================================================
+    // 5. CATALOG FILTERING, SORTING & EVENT CARDS
+    // =========================================================================
+    function setCategoryFilter(cat) {
+      catalogFilter.category = cat;
+      const chips = document.querySelectorAll(`#category-chips .filter-chip`);
+      chips.forEach((chip) => {
+        if (chip.id === `btn-watchlist-only`) return;
+        const text = chip.textContent.trim();
+        const isAll = cat === `ALL` && text.startsWith(`Semua`);
+        const isMatch = text === cat;
+        chip.setAttribute(`aria-pressed`, isAll || isMatch ? `true` : `false`);
+      });
+      renderCatalogEvents();
+    }
+
+    function toggleWatchlistFilter() {
+      catalogFilter.watchlistOnly = !catalogFilter.watchlistOnly;
+      const btn = document.getElementById(`btn-watchlist-only`);
+      if (btn) btn.setAttribute(`aria-pressed`, catalogFilter.watchlistOnly ? `true` : `false`);
+      renderCatalogEvents();
+    }
+
+    function applyFilters() {
+      const searchEl = document.getElementById(`search-input`);
+      const regEl = document.getElementById(`region-select`);
+      const priceEl = document.getElementById(`price-select`);
+      const sortEl = document.getElementById(`sort-select`);
+
+      catalogFilter.search = searchEl ? searchEl.value.trim().toLowerCase() : ``;
+      catalogFilter.region = regEl ? regEl.value : `ALL`;
+      catalogFilter.price = priceEl ? priceEl.value : `ALL`;
+      catalogFilter.sort = sortEl ? sortEl.value : `DATE_ASC`;
+
+      renderCatalogEvents();
+    }
+
+    function resetCatalogFilters() {
+      catalogFilter = {
+        search: ``,
+        category: `ALL`,
+        region: `ALL`,
+        price: `ALL`,
+        sort: `DATE_ASC`,
+        watchlistOnly: false
+      };
+      const searchEl = document.getElementById(`search-input`);
+      const regEl = document.getElementById(`region-select`);
+      const priceEl = document.getElementById(`price-select`);
+      const sortEl = document.getElementById(`sort-select`);
+      const watchBtn = document.getElementById(`btn-watchlist-only`);
+      if (searchEl) searchEl.value = ``;
+      if (regEl) regEl.value = `ALL`;
+      if (priceEl) priceEl.value = `ALL`;
+      if (sortEl) sortEl.value = `DATE_ASC`;
+      if (watchBtn) watchBtn.setAttribute(`aria-pressed`, `false`);
+      setCategoryFilter(`ALL`);
+    }
+
+    function getFilteredEvents() {
+      let list = EVENTS.filter((ev) => {
+        if (catalogFilter.category !== `ALL` && ev.category !== catalogFilter.category) return false;
+        if (catalogFilter.region !== `ALL` && ev.region !== catalogFilter.region) return false;
+        if (catalogFilter.watchlistOnly && !appState.watchlist.includes(ev.id)) return false;
+
+        if (catalogFilter.price === `FREE_50`) {
+          if (ev.price === null || ev.price > 50000) return false;
+        } else if (catalogFilter.price === `UNDER_100`) {
+          if (ev.price === null || ev.price > 100000) return false;
+        } else if (catalogFilter.price === `OVER_100`) {
+          if (ev.price === null || ev.price <= 100000) return false;
+        } else if (catalogFilter.price === `TBA`) {
+          if (ev.price !== null) return false;
+        }
+
+        if (catalogFilter.search) {
+          const hay = `${ev.title} ${ev.venue} ${ev.city} ${ev.category}`.toLowerCase();
+          if (!hay.includes(catalogFilter.search)) return false;
+        }
+        return true;
+      });
+
+      list.sort((a, b) => {
+        if (catalogFilter.sort === `PRICE_ASC`) {
+          const pa = a.price === null ? Number.MAX_SAFE_INTEGER : a.price;
+          const pb = b.price === null ? Number.MAX_SAFE_INTEGER : b.price;
+          return pa - pb;
+        }
+        if (catalogFilter.sort === `PRICE_DESC`) {
+          const pa = a.price === null ? -1 : a.price;
+          const pb = b.price === null ? -1 : b.price;
+          return pb - pa;
+        }
+        if (catalogFilter.sort === `NAME_ASC`) {
+          return a.title.localeCompare(b.title, `id`);
+        }
+        return a.sortDate.localeCompare(b.sortDate);
+      });
+
+      return list;
+    }
+
+    function renderCatalogEvents() {
+      const grid = document.getElementById(`events-grid`);
+      const emptyBox = document.getElementById(`events-empty`);
+      const countLabel = document.getElementById(`filter-result-label`);
+      if (!grid || !emptyBox) return;
+
+      const list = getFilteredEvents();
+      if (countLabel) countLabel.textContent = `Menampilkan ${list.length} dari ${EVENTS.length} acara`;
+
+      if (list.length === 0) {
+        grid.innerHTML = ``;
+        emptyBox.style.display = `grid`;
+        return;
+      }
+      emptyBox.style.display = `none`;
+
+      grid.innerHTML = list.map((ev) => {
+        const isSelected = ev.id === appState.selectedEventId;
+        const isWatched = appState.watchlist.includes(ev.id);
+        const days = daysUntilEvent(ev.sortDate);
+        const urgencyBadge = days >= 0 && days <= 7
+          ? `<span class="badge is-yellow">${days === 0 ? `Hari Ini` : `${days} Hari Lagi`}</span>`
+          : ``;
+        const catClass = ev.category === `Konser`
+          ? `is-pink`
+          : ev.category === `Festival`
+            ? `is-cyan`
+            : ``;
+
+        return `
+          <div class="event-card-wrap">
+            <article class="event-card ${isSelected ? `is-selected` : ``}" onclick="selectEvent('${ev.id}')" tabindex="0" onkeydown="handleCardKey(event, '${ev.id}')" aria-label="Pilih acara ${ev.title}">
+              <div class="event-card-head">
+                <span class="badge ${catClass}">${ev.category}</span>
+                <div style="display: flex; gap: var(--space-xs); flex-wrap: wrap; justify-content: flex-end;">
+                  ${urgencyBadge}
+                  ${isWatched ? `<span class="badge is-cyan">Dipantau</span>` : ``}
+                </div>
+              </div>
+              <h3 class="event-title">${ev.title}</h3>
+              <div class="event-meta">
+                <div class="event-meta-row">
+                  <svg class="event-meta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <span>${ev.dateStr} &middot; ${ev.timeStr}</span>
+                </div>
+                <div class="event-meta-row">
+                  <svg class="event-meta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <span>${ev.venue}, ${ev.city}</span>
+                </div>
+              </div>
+              <div class="event-card-foot">
+                <div class="price-block">
+                  <span class="price-label">Mulai Dari</span>
+                  <span class="price-value">${ev.priceLabel}</span>
+                </div>
+                <button type="button" class="btn-neon ${ev.price === null ? `is-cyan` : ``}" onclick="event.stopPropagation(); selectEvent('${ev.id}')">
+                  ${ev.price === null ? `Info Acara` : `Pilih Tiket`}
+                </button>
+              </div>
+            </article>
+          </div>
+        `;
+      }).join(``);
+    }
+
+    function handleCardKey(e, eventId) {
+      if (e.key === `Enter` || e.key === ` `) {
+        e.preventDefault();
+        selectEvent(eventId);
+      }
+    }
+
+    function selectEvent(eventId) {
+      appState.selectedEventId = eventId;
+      renderCatalogEvents();
+      renderInspector();
+      persistState();
+    }
+
+    function toggleWatchlist(eventId) {
+      const idx = appState.watchlist.indexOf(eventId);
+      if (idx === -1) appState.watchlist.push(eventId);
+      else appState.watchlist.splice(idx, 1);
+      updateHeaderMetrics();
+      renderCatalogEvents();
+      renderInspector();
+      persistState();
+    }
+
+    // =========================================================================
+    // 6. TICKET INSPECTOR & CART LOGIC
+    // =========================================================================
+    function ensureCartForEvent(eventId) {
+      if (!appState.cart || appState.cart.eventId !== eventId) {
+        return { eventId, tiers: { presale: 0, ga: 0, vip: 0 } };
+      }
+      return appState.cart;
+    }
+
+    function adjustTierQty(eventId, tierKey, delta) {
+      if (!appState.cart || appState.cart.eventId !== eventId) {
+        appState.cart = { eventId, tiers: { presale: 0, ga: 0, vip: 0 } };
+      }
+      const tiers = getEventTiers(getEventById(eventId));
+      const tierObj = tiers.find((t) => t.key === tierKey);
+      const maxPerOrder = Math.min(6, tierObj ? tierObj.quota : 6);
+      const current = appState.cart.tiers[tierKey] || 0;
+      const next = Math.max(0, Math.min(maxPerOrder, current + delta));
+      appState.cart.tiers[tierKey] = next;
+
+      updateHeaderMetrics();
+      renderInspector();
+      persistState();
+    }
+
+    function getCartTotalQty() {
+      if (!appState.cart || !appState.cart.tiers) return 0;
+      return (appState.cart.tiers.presale || 0) + (appState.cart.tiers.ga || 0) + (appState.cart.tiers.vip || 0);
+    }
+
+    function getCartPricing() {
+      if (!appState.cart) return { subtotal: 0, fee: 0, discount: 0, total: 0, items: [] };
+      const ev = getEventById(appState.cart.eventId);
+      const tiers = getEventTiers(ev);
+      const items = [];
+      let subtotal = 0;
+
+      tiers.forEach((tier) => {
+        const qty = appState.cart.tiers[tier.key] || 0;
+        if (qty > 0) {
+          const lineTotal = qty * tier.price;
+          subtotal += lineTotal;
+          items.push({ key: tier.key, name: tier.name, price: tier.price, qty, lineTotal });
+        }
+      });
+
+      const fee = subtotal > 0 ? Math.round(subtotal * 0.05) : 0;
+      let discount = 0;
+      const promo = PROMO_CODES[appState.promoCode];
+      if (promo && subtotal >= promo.minSubtotal && subtotal > 0) {
+        discount = promo.type === `percent`
+          ? Math.round((subtotal * promo.value) / 100)
+          : promo.value;
+        discount = Math.min(discount, subtotal);
+      }
+
+      const total = Math.max(0, subtotal + fee - discount);
+      return { ev, items, subtotal, fee, discount, total };
+    }
+
+    function renderInspector() {
+      const box = document.getElementById(`inspector-content`);
+      if (!box) return;
+      const ev = getEventById(appState.selectedEventId);
+      const isWatched = appState.watchlist.includes(ev.id);
+
+      if (ev.price === null) {
+        box.innerHTML = `
+          <div style="display: grid; gap: var(--space-md);">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm);">
+              <span class="kicker">DETAIL ACARA // TBA</span>
+              <span class="badge is-yellow">Harga Segera Hadir</span>
+            </div>
+            <h2 class="section-heading">${ev.title}</h2>
+            <p style="margin: 0; color: var(--on-surface-variant);">${ev.desc}</p>
+            <div class="neon-panel is-neutral" style="padding: var(--space-md); display: grid; gap: var(--space-xs);">
+              <span class="spec-label">Jadwal</span>
+              <span class="spec-value">${ev.dateStr} &middot; ${ev.timeStr}</span>
+              <span class="spec-label" style="margin-top: var(--space-xs);">Lokasi</span>
+              <span class="spec-value">${ev.venue}, ${ev.city}</span>
+              <span class="spec-label" style="margin-top: var(--space-xs);">Status Penjualan</span>
+              <span class="spec-value">Mulai Dari ${ev.priceLabel}</span>
+            </div>
+            <div class="inline-notice is-warning">
+              Penyelenggara belum membuka nominal tiket resmi untuk acara ini. Simpan ke daftar pantau untuk menandai acara di katalog.
+            </div>
+            <button type="button" class="btn-neon is-cyan" onclick="toggleWatchlist('${ev.id}')">
+              ${isWatched ? `Hapus dari Daftar Pantau` : `Pantau Acara Ini`}
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      const tiers = getEventTiers(ev);
+      const activeCart = ensureCartForEvent(ev.id);
+      const totalSelected = (activeCart.tiers.presale || 0) + (activeCart.tiers.ga || 0) + (activeCart.tiers.vip || 0);
+      let subtotal = 0;
+      tiers.forEach((t) => {
+        subtotal += (activeCart.tiers[t.key] || 0) * t.price;
+      });
+
+      const anotherEventInCart = appState.cart && appState.cart.eventId !== ev.id && getCartTotalQty() > 0;
+
+      box.innerHTML = `
+        <div style="display: grid; gap: var(--space-md);">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
+            <span class="kicker">KONFIGURATOR TIKET</span>
+            <button type="button" class="filter-chip" aria-pressed="${isWatched ? `true` : `false`}" onclick="toggleWatchlist('${ev.id}')">
+              ${isWatched ? `Dipantau` : `Simpan`}
+            </button>
+          </div>
+          <div>
+            <h2 class="section-heading">${ev.title}</h2>
+            <p style="margin: var(--space-xs) 0 0; color: var(--on-surface-variant); font-size: 0.875rem;">${ev.dateStr} &middot; ${ev.timeStr}</p>
+            <p style="margin: 2px 0 0; color: var(--on-surface-variant); font-size: 0.875rem;">${ev.venue}, ${ev.city}</p>
+          </div>
+
+          ${anotherEventInCart ? `
+            <div class="inline-notice is-warning">
+              Keranjang checkout Anda masih menyimpan tiket untuk acara lain (${getEventById(appState.cart.eventId).title}). Mengubah jumlah di sini akan mengganti isi keranjang.
+            </div>
+          ` : ``}
+
+          <div class="tier-list">
+            ${tiers.map((t) => {
+              const qty = activeCart.tiers[t.key] || 0;
+              return `
+                <div class="tier-card ${qty > 0 ? `has-qty` : ``}">
+                  <div class="tier-top">
+                    <div>
+                      <div class="tier-name">${t.name}</div>
+                      <p class="tier-perk">${t.perk}</p>
+                    </div>
+                    <span class="badge ${t.key === `vip` ? `is-pink` : t.key === `presale` ? `is-cyan` : ``}">Sisa ${t.quota}</span>
+                  </div>
+                  <div class="tier-bottom">
+                    <span class="tier-price">${formatRupiah(t.price)}</span>
+                    <div class="stepper" role="group" aria-label="Jumlah tiket ${t.name}">
+                      <button type="button" class="stepper-btn" onclick="adjustTierQty('${ev.id}', '${t.key}', -1)" ${qty <= 0 ? `disabled` : ``} aria-label="Kurangi ${t.name}">-</button>
+                      <span class="stepper-val">${qty}</span>
+                      <button type="button" class="stepper-btn" onclick="adjustTierQty('${ev.id}', '${t.key}', 1)" ${qty >= 6 ? `disabled` : ``} aria-label="Tambah ${t.name}">+</button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join(``)}
+          </div>
+
+          <div class="summary-box">
+            <div class="summary-row">
+              <span style="color: var(--on-surface-variant);">Tiket Terpilih</span>
+              <span class="mono-num">${totalSelected} tiket</span>
+            </div>
+            <div class="summary-row">
+              <span style="color: var(--on-surface-variant);">Subtotal</span>
+              <span class="summary-total">${formatRupiahStrict(subtotal)}</span>
+            </div>
+            <button type="button" class="btn-neon" onclick="proceedToCheckoutFromInspector()" ${totalSelected === 0 ? `disabled` : ``}>
+              ${totalSelected === 0 ? `Pilih Minimal 1 Tiket` : `Lanjut Checkout (${totalSelected} Tiket)`}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function proceedToCheckoutFromInspector() {
+      if (getCartTotalQty() <= 0) return;
+      appState.checkoutStep = 1;
+      switchTab(`checkout`);
+    }
+
+    // =========================================================================
+    // 7. ANALYTICS CHARTS (Category & Region Breakdown across 24 Events)
+    // =========================================================================
+    function renderCatalogCharts() {
+      const catEl = document.getElementById(`category-chart`);
+      const regEl = document.getElementById(`region-chart`);
+      if (!catEl || !regEl) return;
+
+      const catCounts = {};
+      const regCounts = {};
+      EVENTS.forEach((ev) => {
+        catCounts[ev.category] = (catCounts[ev.category] || 0) + 1;
+        regCounts[ev.region] = (regCounts[ev.region] || 0) + 1;
+      });
+
+      const catSorted = Object.entries(catCounts).sort((a, b) => b[1] - a[1]);
+      const regSorted = Object.entries(regCounts).sort((a, b) => b[1] - a[1]);
+      const maxCat = catSorted[0] ? catSorted[0][1] : 1;
+      const maxReg = regSorted[0] ? regSorted[0][1] : 1;
+
+      const colorClasses = [``, `is-c2`, `is-c3`, `is-c4`, `is-c5`];
+
+      catEl.innerHTML = catSorted.map(([label, val], idx) => `
+        <div class="bar-row">
+          <span>${label}</span>
+          <div class="bar-track">
+            <div class="bar-fill ${colorClasses[idx % colorClasses.length]}" style="width: ${Math.round((val / maxCat) * 100)}%;"></div>
+          </div>
+          <span class="mono-num">${val} acara</span>
+        </div>
+      `).join(``);
+
+      regEl.innerHTML = regSorted.map(([label, val], idx) => `
+        <div class="bar-row">
+          <span>${label}</span>
+          <div class="bar-track">
+            <div class="bar-fill ${colorClasses[(idx + 1) % colorClasses.length]}" style="width: ${Math.round((val / maxReg) * 100)}%;"></div>
+          </div>
+          <span class="mono-num">${val} acara</span>
+        </div>
+      `).join(``);
+    }
+
+    // =========================================================================
+    // 8. INTERACTIVE CHECKOUT FLOW
+    // =========================================================================
+    function syncBuyerField(field, value) {
+      appState.buyer[field] = value;
+      const errEl = document.getElementById(`err-buyer-${field}`);
+      if (errEl) errEl.textContent = ``;
+      persistState();
+    }
+
+    function applyPromoCode() {
+      const input = document.getElementById(`promo-input`);
+      const feedback = document.getElementById(`promo-feedback`);
+      if (!input || !feedback) return;
+      const code = input.value.trim().toUpperCase();
+      if (!code) {
+        appState.promoCode = ``;
+        feedback.textContent = `Kode promo dihapus.`;
+        feedback.style.color = `var(--on-surface-variant)`;
+        renderCheckoutSummary();
+        persistState();
+        return;
+      }
+      const promo = PROMO_CODES[code];
+      const pricing = getCartPricing();
+      if (!promo) {
+        feedback.textContent = `Kode promo "${code}" tidak dikenali. Gunakan YESPLIS10 atau FESTIVAL25.`;
+        feedback.style.color = `var(--error)`;
+        return;
+      }
+      if (pricing.subtotal < promo.minSubtotal) {
+        feedback.textContent = `Kode ${code} mensyaratkan subtotal minimal ${formatRupiahStrict(promo.minSubtotal)}.`;
+        feedback.style.color = `var(--tertiary)`;
+        return;
+      }
+      appState.promoCode = code;
+      feedback.textContent = `Promo aktif: ${promo.label}.`;
+      feedback.style.color = `var(--secondary)`;
+      renderCheckoutSummary();
+      persistState();
+    }
+
+    function validateStep1() {
+      let ok = true;
+      const name = (appState.buyer.name || ``).trim();
+      const email = (appState.buyer.email || ``).trim();
+      const phone = (appState.buyer.phone || ``).replace(/\s+/g, ``);
+      const idnum = (appState.buyer.idnum || ``).trim();
+
+      const setErr = (id, msg) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = msg;
+      };
+
+      if (name.length < 3) {
+        setErr(`err-buyer-name`, `Isi nama lengkap minimal 3 karakter.`);
+        ok = false;
+      } else setErr(`err-buyer-name`, ``);
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setErr(`err-buyer-email`, `Masukkan format email yang valid (contoh: nama@domain.com).`);
+        ok = false;
+      } else setErr(`err-buyer-email`, ``);
+
+      if (!/^[0-9+]{9,15}$/.test(phone)) {
+        setErr(`err-buyer-phone`, `Nomor WhatsApp harus berisi 9–15 digit angka.`);
+        ok = false;
+      } else setErr(`err-buyer-phone`, ``);
+
+      if (idnum.length < 6) {
+        setErr(`err-buyer-idnum`, `Masukkan minimal 6 karakter nomor identitas untuk verifikasi gerbang.`);
+        ok = false;
+      } else setErr(`err-buyer-idnum`, ``);
+
+      return ok;
+    }
+
+    function selectPaymentMethod(method) {
+      appState.paymentMethod = method;
+      const errEl = document.getElementById(`err-payment-method`);
+      if (errEl) errEl.textContent = ``;
+      updatePaymentOptionStyles();
+      renderCheckoutSummary();
+      persistState();
+    }
+
+    function updatePaymentOptionStyles() {
+      const opts = [
+        { id: `pay-opt-qris`, val: `QRIS Instan` },
+        { id: `pay-opt-va`, val: `Virtual Account Bank` },
+        { id: `pay-opt-ewallet`, val: `E-Wallet (GoPay / OVO / DANA)` }
+      ];
+      opts.forEach((opt) => {
+        const label = document.getElementById(opt.id);
+        if (!label) return;
+        const radio = label.querySelector(`input[type="radio"]`);
+        const isMatch = appState.paymentMethod === opt.val;
+        label.classList.toggle(`is-selected`, isMatch);
+        if (radio) radio.checked = isMatch;
+      });
+    }
+
+    function goToCheckoutStep(step) {
+      if (step > 1 && !validateStep1()) return;
+      if (step === 3 && !appState.paymentMethod) {
+        const errEl = document.getElementById(`err-payment-method`);
+        if (errEl) errEl.textContent = `Pilih satu metode pembayaran terlebih dahulu.`;
+        return;
+      }
+      appState.checkoutStep = step;
+      renderCheckoutView();
+      persistState();
+    }
+
+    function renderCheckoutSummary() {
+      const box = document.getElementById(`checkout-summary-box`);
+      if (!box) return;
+      const pricing = getCartPricing();
+      if (!pricing.ev || pricing.items.length === 0) {
+        box.innerHTML = ``;
+        return;
+      }
+
+      box.innerHTML = `
+        <div style="display: grid; gap: 4px; padding-bottom: var(--space-sm); border-bottom: 1px solid var(--outline-variant);">
+          <span class="badge is-pink" style="justify-self: start;">${pricing.ev.category}</span>
+          <strong style="font-family: var(--font-headline); font-size: 1.0625rem;">${pricing.ev.title}</strong>
+          <span style="font-size: 0.875rem; color: var(--on-surface-variant);">${pricing.ev.dateStr} &middot; ${pricing.ev.timeStr}</span>
+          <span style="font-size: 0.875rem; color: var(--on-surface-variant);">${pricing.ev.venue}, ${pricing.ev.city}</span>
+        </div>
+        <div style="display: grid; gap: var(--space-xs);">
+          ${pricing.items.map((item) => `
+            <div class="summary-row">
+              <span>${item.qty}&times; ${item.name}</span>
+              <span class="mono-num">${formatRupiahStrict(item.lineTotal)}</span>
+            </div>
+          `).join(``)}
+        </div>
+        <div class="summary-box">
+          <div class="summary-row">
+            <span style="color: var(--on-surface-variant);">Subtotal Tiket</span>
+            <span class="mono-num">${formatRupiahStrict(pricing.subtotal)}</span>
+          </div>
+          <div class="summary-row">
+            <span style="color: var(--on-surface-variant);">Biaya Layanan (5%)</span>
+            <span class="mono-num">${formatRupiahStrict(pricing.fee)}</span>
+          </div>
+          ${pricing.discount > 0 ? `
+            <div class="summary-row" style="color: var(--secondary);">
+              <span>Promo (${appState.promoCode})</span>
+              <span class="mono-num">- ${formatRupiahStrict(pricing.discount)}</span>
+            </div>
+          ` : ``}
+          <div class="summary-row" style="padding-top: var(--space-sm); border-top: 1px solid var(--outline-variant);">
+            <strong>Total Pembayaran</strong>
+            <span class="summary-total">${formatRupiahStrict(pricing.total)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCheckoutView() {
+      const emptyBox = document.getElementById(`checkout-empty`);
+      const workspace = document.getElementById(`checkout-workspace`);
+      if (!emptyBox || !workspace) return;
+
+      const qty = getCartTotalQty();
+      if (qty <= 0) {
+        emptyBox.style.display = `grid`;
+        workspace.style.display = `none`;
+        return;
+      }
+
+      emptyBox.style.display = `none`;
+      workspace.style.display = `grid`;
+
+      // Hydrate form inputs
+      const bName = document.getElementById(`buyer-name`);
+      const bEmail = document.getElementById(`buyer-email`);
+      const bPhone = document.getElementById(`buyer-phone`);
+      const bId = document.getElementById(`buyer-idnum`);
+      const pInput = document.getElementById(`promo-input`);
+      if (bName) bName.value = appState.buyer.name || ``;
+      if (bEmail) bEmail.value = appState.buyer.email || ``;
+      if (bPhone) bPhone.value = appState.buyer.phone || ``;
+      if (bId) bId.value = appState.buyer.idnum || ``;
+      if (pInput) pInput.value = appState.promoCode || ``;
+
+      updatePaymentOptionStyles();
+      renderCheckoutSummary();
+
+      const step = appState.checkoutStep || 1;
+      [1, 2, 3].forEach((n) => {
+        const panel = document.getElementById(`checkout-step-${n}`);
+        const pill = document.getElementById(`step-pill-${n}`);
+        if (panel) panel.style.display = n === step ? `grid` : `none`;
+        if (pill) {
+          pill.classList.toggle(`is-active`, n === step);
+          pill.classList.toggle(`is-done`, n < step);
+        }
+      });
+
+      if (step === 3) {
+        const reviewBox = document.getElementById(`checkout-review-box`);
+        const pricing = getCartPricing();
+        if (reviewBox && pricing.ev) {
+          reviewBox.innerHTML = `
+            <div class="summary-row">
+              <span class="spec-label">Pemegang E-Ticket</span>
+              <strong>${appState.buyer.name} (${appState.buyer.idnum})</strong>
+            </div>
+            <div class="summary-row">
+              <span class="spec-label">Kontak Pengiriman</span>
+              <span>${appState.buyer.email} &middot; ${appState.buyer.phone}</span>
+            </div>
+            <div class="summary-row">
+              <span class="spec-label">Metode Pembayaran</span>
+              <span class="badge is-cyan">${appState.paymentMethod}</span>
+            </div>
+            <div class="summary-row">
+              <span class="spec-label">Jumlah E-Ticket Terbit</span>
+              <span class="mono-num">${getCartTotalQty()} lembar E-Ticket ber-QR</span>
+            </div>
+            <div class="summary-row">
+              <span class="spec-label">Nominal Akhir</span>
+              <span class="summary-total">${formatRupiahStrict(pricing.total)}</span>
+            </div>
+          `;
+        }
+      }
+    }
+
+    function generateCode(prefix) {
+      const chars = `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`;
+      let suffix = ``;
+      for (let i = 0; i < 5; i++) {
+        suffix += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return `${prefix}-${suffix}`;
+    }
+
+    function completeCheckout() {
+      if (!validateStep1()) {
+        goToCheckoutStep(1);
+        return;
+      }
+      const pricing = getCartPricing();
+      if (!pricing.ev || pricing.items.length === 0) return;
+
+      const orderId = generateCode(`ORD-2611`);
+      const nowIso = new Date().toISOString();
+      const nowDisplay = new Date().toLocaleString(`id-ID`, {
+        day: `2-digit`,
+        month: `short`,
+        year: `numeric`,
+        hour: `2-digit`,
+        minute: `2-digit`
+      });
+
+      const createdTickets = [];
+      pricing.items.forEach((item) => {
+        for (let i = 0; i < item.qty; i++) {
+          const ticketId = generateCode(`YSP`);
+          const qrPayload = `YESPLIS|${ticketId}|${orderId}|${pricing.ev.id}|${item.key.toUpperCase()}`;
+          createdTickets.push({
+            ticketId,
+            orderId,
+            eventId: pricing.ev.id,
+            eventTitle: pricing.ev.title,
+            category: pricing.ev.category,
+            dateStr: pricing.ev.dateStr,
+            timeStr: pricing.ev.timeStr,
+            venue: pricing.ev.venue,
+            city: pricing.ev.city,
+            tierName: item.name,
+            tierPrice: item.price,
+            holderName: appState.buyer.name.trim(),
+            holderEmail: appState.buyer.email.trim(),
+            holderIdNum: appState.buyer.idnum.trim(),
+            status: `AKTIF`,
+            checkinAt: null,
+            issuedAt: nowDisplay,
+            qrPayload
+          });
+        }
+      });
+
+      const orderRecord = {
+        orderId,
+        createdAt: nowDisplay,
+        createdIso: nowIso,
+        eventId: pricing.ev.id,
+        eventTitle: pricing.ev.title,
+        itemsSummary: pricing.items.map((it) => `${it.qty}x ${it.name}`).join(`, `),
+        ticketCount: createdTickets.length,
+        paymentMethod: appState.paymentMethod,
+        promoCode: appState.promoCode || `-`,
+        subtotal: pricing.subtotal,
+        fee: pricing.fee,
+        discount: pricing.discount,
+        total: pricing.total,
+        status: `Berhasil`,
+        ticketIds: createdTickets.map((t) => t.ticketId)
+      };
+
+      appState.orders.unshift(orderRecord);
+      appState.tickets = createdTickets.concat(appState.tickets);
+      appState.selectedTicketId = createdTickets[0].ticketId;
+      appState.cart = null;
+      appState.checkoutStep = 1;
+      appState.promoCode = ``;
+
+      updateHeaderMetrics();
+      switchTab(`tiket`);
+      persistState();
+    }
+
+    // =========================================================================
+    // 9. TIKET SAYA & E-TICKET QR VIEW + PNG EXPORT
+    // =========================================================================
+    function setTicketFilter(filterVal) {
+      ticketFilter = filterVal;
+      const map = {
+        ALL: `ticket-filter-all`,
+        AKTIF: `ticket-filter-active`,
+        "CHECK-IN": `ticket-filter-used`
+      };
+      Object.entries(map).forEach(([k, id]) => {
+        const el = document.getElementById(id);
+        if (el) el.setAttribute(`aria-pressed`, k === filterVal ? `true` : `false`);
+      });
+      renderTicketsView();
+    }
+
+    function selectTicket(ticketId) {
+      appState.selectedTicketId = ticketId;
+      renderTicketsView();
+      persistState();
+    }
+
+    function toggleTicketCheckin(ticketId) {
+      const t = appState.tickets.find((item) => item.ticketId === ticketId);
+      if (!t) return;
+      if (t.status === `AKTIF`) {
+        t.status = `CHECK-IN`;
+        t.checkinAt = new Date().toLocaleTimeString(`id-ID`, { hour: `2-digit`, minute: `2-digit` }) + ` WIB`;
+      } else {
+        t.status = `AKTIF`;
+        t.checkinAt = null;
+      }
+      updateHeaderMetrics();
+      renderTicketsView();
+      persistState();
+    }
+
+    function renderTicketsView() {
+      const emptyBox = document.getElementById(`tickets-empty`);
+      const popBox = document.getElementById(`tickets-populated`);
+      const listEl = document.getElementById(`ticket-list`);
+      const detailEl = document.getElementById(`eticket-detail-pane`);
+      if (!emptyBox || !popBox || !listEl || !detailEl) return;
+
+      if (appState.tickets.length === 0) {
+        emptyBox.style.display = `grid`;
+        popBox.style.display = `none`;
+        return;
+      }
+
+      emptyBox.style.display = `none`;
+      popBox.style.display = `grid`;
+
+      const filtered = appState.tickets.filter((t) => {
+        if (ticketFilter === `ALL`) return true;
+        return t.status === ticketFilter;
+      });
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="inline-notice">Tidak ada E-Ticket dengan status "${ticketFilter}".</div>`;
+        detailEl.innerHTML = ``;
+        return;
+      }
+
+      if (!filtered.some((t) => t.ticketId === appState.selectedTicketId)) {
+        appState.selectedTicketId = filtered[0].ticketId;
+      }
+
+      listEl.innerHTML = filtered.map((t) => {
+        const isSel = t.ticketId === appState.selectedTicketId;
+        return `
+          <button type="button" class="ticket-item ${isSel ? `is-active` : ``}" onclick="selectTicket('${t.ticketId}')">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm);">
+              <span class="mono-num" style="font-size: var(--label-size); color: var(--secondary);">${t.ticketId}</span>
+              <span class="badge ${t.status === `AKTIF` ? `is-cyan` : `is-yellow`}">${t.status}</span>
+            </div>
+            <strong style="font-family: var(--font-headline); font-size: 1rem; color: var(--on-surface);">${t.eventTitle}</strong>
+            <span style="font-size: 0.8125rem; color: var(--on-surface-variant);">${t.tierName} &middot; ${t.dateStr}</span>
+          </button>
+        `;
+      }).join(``);
+
+      const activeT = filtered.find((t) => t.ticketId === appState.selectedTicketId) || filtered[0];
+      const qrSvg = renderQrSvg(activeT.qrPayload);
+
+      detailEl.innerHTML = `
+        <article class="eticket-card" aria-label="Kartu E-Ticket Digital">
+          <div class="eticket-header">
+            <div style="display: grid; gap: 4px;">
+              <span class="kicker">E-TICKET DIGITAL YESPLIS // ${activeT.ticketId}</span>
+              <h3 class="section-heading">${activeT.eventTitle}</h3>
+              <span class="badge is-filled-pink" style="justify-self: start;">${activeT.tierName}</span>
+            </div>
+            <span class="badge ${activeT.status === `AKTIF` ? `is-cyan` : `is-yellow`}">
+              ${activeT.status === `AKTIF` ? `SIAP PINDAI` : `CHECK-IN ${activeT.checkinAt || ``}`}
+            </span>
+          </div>
+
+          <div class="eticket-body">
+            <div class="qr-frame">
+              ${qrSvg}
+              <span class="qr-caption">${activeT.ticketId}</span>
+            </div>
+
+            <div class="eticket-specs">
+              <div class="spec-item">
+                <span class="spec-label">Pemegang Tiket</span>
+                <span class="spec-value">${activeT.holderName} (${activeT.holderIdNum})</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Jadwal Acara</span>
+                <span class="spec-value">${activeT.dateStr} &middot; ${activeT.timeStr}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Lokasi Venue</span>
+                <span class="spec-value">${activeT.venue}, ${activeT.city}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Kode Pesanan &amp; Nilai</span>
+                <span class="spec-value mono-num">${activeT.orderId} &middot; ${formatRupiah(activeT.tierPrice)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-sm); padding-top: var(--space-md); border-top: 1px dashed var(--outline);">
+            <button type="button" class="btn-neon is-cyan" onclick="downloadEticketPng('${activeT.ticketId}')">
+              Unduh E-Ticket (PNG)
+            </button>
+            <button type="button" class="btn-neon ${activeT.status === `AKTIF` ? `` : `is-ghost`}" onclick="toggleTicketCheckin('${activeT.ticketId}')">
+              ${activeT.status === `AKTIF` ? `Simulasikan Check-In Venue` : `Batalkan Status Check-In`}
+            </button>
+          </div>
+        </article>
+      `;
+    }
+
+    function downloadEticketPng(ticketId) {
+      const t = appState.tickets.find((item) => item.ticketId === ticketId);
+      if (!t) return;
+
+      const styles = getComputedStyle(document.documentElement);
+      const bg = styles.getPropertyValue(`--background`).trim();
+      const cardBg = styles.getPropertyValue(`--surface-container`).trim();
+      const ink = styles.getPropertyValue(`--on-surface`).trim();
+      const muted = styles.getPropertyValue(`--on-surface-variant`).trim();
+      const pink = styles.getPropertyValue(`--primary`).trim();
+      const cyan = styles.getPropertyValue(`--secondary`).trim();
+      const qrPaper = styles.getPropertyValue(`--qr-paper`).trim();
+      const qrInk = styles.getPropertyValue(`--qr-ink`).trim();
+
+      const canvas = document.createElement(`canvas`);
+      canvas.width = 880;
+      canvas.height = 440;
+      const ctx = canvas.getContext(`2d`);
+      if (!ctx) return;
+
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 880, 440);
+
+      ctx.fillStyle = cardBg;
+      ctx.fillRect(24, 24, 832, 392);
+      ctx.strokeStyle = pink;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(24, 24, 832, 392);
+
+      // QR Code on right-left block
+      const matrix = qrBuildMatrix(t.qrPayload);
+      const qSize = matrix.length;
+      const cell = 6;
+      const quiet = 2;
+      const qrBoxSize = (qSize + quiet * 2) * cell;
+      const qx = 56;
+      const qy = 118;
+
+      ctx.fillStyle = qrPaper;
+      ctx.fillRect(qx, qy, qrBoxSize, qrBoxSize);
+      ctx.strokeStyle = cyan;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(qx, qy, qrBoxSize, qrBoxSize);
+
+      ctx.fillStyle = qrInk;
+      for (let r = 0; r < qSize; r++) {
+        for (let c = 0; c < qSize; c++) {
+          if (matrix[r][c] === 1) {
+            ctx.fillRect(qx + (c + quiet) * cell, qy + (r + quiet) * cell, cell, cell);
+          }
+        }
+      }
+
+      // Text metadata
+      ctx.fillStyle = cyan;
+      ctx.font = `700 14px monospace`;
+      ctx.fillText(`YESPLIS E-TICKET // ${t.ticketId}`, 56, 68);
+
+      ctx.fillStyle = ink;
+      ctx.font = `700 26px sans-serif`;
+      const titleSlice = t.eventTitle.length > 42 ? t.eventTitle.slice(0, 40) + `…` : t.eventTitle;
+      ctx.fillText(titleSlice, 56, 100);
+
+      const tx = 290;
+      ctx.fillStyle = pink;
+      ctx.font = `700 18px monospace`;
+      ctx.fillText(`[ ${t.tierName.toUpperCase()} ] - ${t.status}`, tx, 148);
+
+      const drawSpec = (label, val, yPos) => {
+        ctx.fillStyle = muted;
+        ctx.font = `700 12px monospace`;
+        ctx.fillText(label, tx, yPos);
+        ctx.fillStyle = ink;
+        ctx.font = `600 17px sans-serif`;
+        ctx.fillText(val, tx, yPos + 22);
+      };
+
+      drawSpec(`PEMEGANG TIKET`, `${t.holderName} (${t.holderIdNum})`, 190);
+      drawSpec(`JADWAL ACARA`, `${t.dateStr} | ${t.timeStr}`, 250);
+      drawSpec(`LOKASI VENUE`, `${t.venue}, ${t.city}`, 310);
+      drawSpec(`KODE PESANAN`, `${t.orderId} | ${formatRupiah(t.tierPrice)}`, 370);
+
+      const dataUrl = canvas.toDataURL(`image/png`);
+      const base64 = dataUrl.split(`,`)[1];
+      if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === `function`) {
+        window.notebookAppApi.triggerFileDownload({
+          content: base64,
+          contentType: `image/png`,
+          encoding: `base64`,
+          filename: `E-Ticket-${t.ticketId}.png`
+        });
+      }
+    }
+
+    // =========================================================================
+    // 10. DASBOR RIWAYAT TRANSAKSI
+    // =========================================================================
+    function renderTransactionsView() {
+      const emptyBox = document.getElementById(`orders-empty`);
+      const popBox = document.getElementById(`orders-populated`);
+      const summaryEl = document.getElementById(`tx-summary-cards`);
+      const bodyEl = document.getElementById(`tx-table-body`);
+      const exportBtn = document.getElementById(`btn-export-csv`);
+      if (!emptyBox || !popBox || !summaryEl || !bodyEl) return;
+
+      if (appState.orders.length === 0) {
+        emptyBox.style.display = `grid`;
+        popBox.style.display = `none`;
+        if (exportBtn) exportBtn.disabled = true;
+        return;
+      }
+
+      emptyBox.style.display = `none`;
+      popBox.style.display = `grid`;
+      if (exportBtn) exportBtn.disabled = false;
+
+      const totalOrders = appState.orders.length;
+      const totalTickets = appState.orders.reduce((acc, o) => acc + o.ticketCount, 0);
+      const totalValue = appState.orders.reduce((acc, o) => acc + o.total, 0);
+      const totalDiscount = appState.orders.reduce((acc, o) => acc + (o.discount || 0), 0);
+
+      summaryEl.innerHTML = `
+        <div class="neon-panel kpi-card">
+          <span class="kpi-label">Total Transaksi</span>
+          <span class="kpi-value">${totalOrders}</span>
+          <span class="kpi-caption">Semua pesanan berhasil</span>
+        </div>
+        <div class="neon-panel is-cyan kpi-card is-cyan">
+          <span class="kpi-label">Total Tiket Terbit</span>
+          <span class="kpi-value">${totalTickets}</span>
+          <span class="kpi-caption">QR Code terverifikasi</span>
+        </div>
+        <div class="neon-panel kpi-card">
+          <span class="kpi-label">Akumulasi Belanja</span>
+          <span class="kpi-value">${formatRupiahStrict(totalValue)}</span>
+          <span class="kpi-caption">Termasuk biaya layanan</span>
+        </div>
+        <div class="neon-panel is-cyan kpi-card is-cyan">
+          <span class="kpi-label">Total Hemat Promo</span>
+          <span class="kpi-value">${formatRupiahStrict(totalDiscount)}</span>
+          <span class="kpi-caption">Potongan kode promo</span>
+        </div>
+      `;
+
+      bodyEl.innerHTML = appState.orders.map((ord) => `
+        <tr>
+          <td class="mono-num" style="color: var(--secondary); font-weight: 700;">${ord.orderId}</td>
+          <td class="mono-num">${ord.createdAt}</td>
+          <td>
+            <strong style="display: block;">${ord.eventTitle}</strong>
+            <span style="font-size: 0.8125rem; color: var(--on-surface-variant);">${ord.itemsSummary}</span>
+          </td>
+          <td>${ord.paymentMethod}</td>
+          <td class="mono-num" style="font-weight: 700;">${formatRupiahStrict(ord.total)}</td>
+          <td><span class="badge is-cyan">${ord.status}</span></td>
+          <td>
+            <button type="button" class="btn-neon" onclick="openOrderTickets('${ord.ticketIds[0]}')">Lihat E-Ticket</button>
+          </td>
+        </tr>
+      `).join(``);
+    }
+
+    function openOrderTickets(firstTicketId) {
+      if (firstTicketId) appState.selectedTicketId = firstTicketId;
+      switchTab(`tiket`);
+    }
+
+    function exportTransactionsCsv() {
+      if (appState.orders.length === 0) return;
+      const headers = [`Kode Pesanan`, `Waktu`, `Acara`, `Rincian Tiket`, `Jumlah`, `Metode Bayar`, `Promo`, `Total (IDR)`, `Status`];
+      const rows = appState.orders.map((o) => [
+        o.orderId,
+        `"${o.createdAt}"`,
+        `"${o.eventTitle.replace(/"/g, `""`)}"`,
+        `"${o.itemsSummary.replace(/"/g, `""`)}"`,
+        o.ticketCount,
+        `"${o.paymentMethod}"`,
+        o.promoCode,
+        o.total,
+        o.status
+      ].join(`,`));
+      const csv = [headers.join(`,`), ...rows].join(`\n`);
+
+      if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === `function`) {
+        window.notebookAppApi.triggerFileDownload({
+          content: csv,
+          contentType: `text/csv`,
+          encoding: `UTF-8`,
+          filename: `yesplis-riwayat-transaksi.csv`
+        });
+      }
+    }
+
+    function handleResetState(btn) {
+      if (btn.dataset.armed !== `true`) {
+        btn.dataset.armed = `true`;
+        btn.textContent = `Klik Lagi untuk Konfirmasi Reset`;
+        return;
+      }
+      btn.dataset.armed = `false`;
+      btn.textContent = `Reset Semua Data`;
+
+      appState = {
+        activeTab: `katalog`,
+        selectedEventId: `rockin-surabaya-2026`,
+        cart: null,
+        checkoutStep: 1,
+        promoCode: ``,
+        paymentMethod: `QRIS Instan`,
+        buyer: { name: ``, email: ``, phone: ``, idnum: `` },
+        watchlist: [],
+        orders: [],
+        tickets: [],
+        selectedTicketId: null
+      };
+
+      updateHeaderMetrics();
+      renderCatalogEvents();
+      renderInspector();
+      switchTab(`katalog`);
+      persistState();
+    }
+
+    // =========================================================================
+    // 11. INITIALIZATION
+    // =========================================================================
+    async function initApp() {
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === `function`) {
+          const saved = await window.notebookAppApi.getAppState();
+          if (saved) restoreState(saved);
+        }
+      } catch (err) {
+        console.warn(`Gagal memulihkan state:`, err);
+      }
+
+      renderCatalogCharts();
+      renderCatalogEvents();
+      renderInspector();
+      updateHeaderMetrics();
+      switchTab(appState.activeTab || `katalog`);
+
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === `function`) {
+        window.notebookAppApi.notifyAppReady();
+      }
+    }
+
+    initApp();
+  </script>
+</body>
+</html>
